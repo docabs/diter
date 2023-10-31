@@ -5,10 +5,10 @@ import path from 'node:path'
 // import { promisify } from 'node:util'
 // import { performance } from 'node:perf_hooks'
 // import { createRequire } from 'node:module'
-// import colors from 'picocolors'
+import colors from 'picocolors'
 import type { Alias, AliasOptions } from 'dep-types/alias'
 // import aliasPlugin from '@rollup/plugin-alias'
-// import { build } from 'esbuild'
+import { build } from 'esbuild'
 import type { RollupOptions } from 'rollup'
 import type { HookHandler, Plugin } from './plugin'
 import type {
@@ -21,13 +21,13 @@ import { resolveBuildOptions } from './build'
 // import { resolveServerOptions } from './server'
 // import type { PreviewOptions, ResolvedPreviewOptions } from './preview'
 // import { resolvePreviewOptions } from './preview'
-// import {
-//   type CSSOptions,
-//   type ResolvedCSSOptions,
-//   resolveCSSOptions,
-// } from './plugins/css'
 import {
-  //   asyncFlatten,
+  type CSSOptions,
+  type ResolvedCSSOptions,
+  resolveCSSOptions,
+} from './plugins/css'
+import {
+  asyncFlatten,
   //   createDebugger,
   //   createFilter,
   //   isBuiltin,
@@ -36,17 +36,17 @@ import {
   //   isNodeBuiltin,
   //   isObject,
   mergeAlias,
-  //   mergeConfig,
+  mergeConfig,
   normalizeAlias,
   normalizePath,
   withTrailingSlash,
 } from './utils'
-// import {
-//   createPluginHookUtils,
-//   getSortedPluginsByHook,
-//   resolvePlugins,
-// } from './plugins'
-// import type { ESBuildOptions } from './plugins/esbuild'
+import {
+  createPluginHookUtils,
+  getSortedPluginsByHook,
+  resolvePlugins,
+} from './plugins'
+import type { ESBuildOptions } from './plugins/esbuild'
 import {
   CLIENT_ENTRY,
   DEFAULT_ASSETS_RE,
@@ -173,19 +173,19 @@ export interface UserConfig {
    * Configure resolver
    */
   resolve?: ResolveOptions & { alias?: AliasOptions }
-  // /**
-  //  * CSS related options (preprocessors and CSS modules)
-  //  */
-  // css?: CSSOptions
+  /**
+   * CSS related options (preprocessors and CSS modules)
+   */
+  css?: CSSOptions
   // /**
   //  * JSON loading options
   //  */
   // json?: JsonOptions
-  // /**
-  //  * Transform options to pass to esbuild.
-  //  * Or set to `false` to disable esbuild.
-  //  */
-  // esbuild?: ESBuildOptions | false
+  /**
+   * Transform options to pass to esbuild.
+   * Or set to `false` to disable esbuild.
+   */
+  esbuild?: ESBuildOptions | false
   // /**
   //  * Specify additional picomatch patterns to be treated as static assets.
   //  */
@@ -210,14 +210,14 @@ export interface UserConfig {
    * SSR specific options
    */
   ssr?: SSROptions
-  // /**
-  //  * Experimental features
-  //  *
-  //  * Features under this field could change in the future and might NOT follow semver.
-  //  * Please be careful and always pin Dite's version when using them.
-  //  * @experimental
-  //  */
-  // experimental?: ExperimentalOptions
+  /**
+   * Experimental features
+   *
+   * Features under this field could change in the future and might NOT follow semver.
+   * Please be careful and always pin Dite's version when using them.
+   * @experimental
+   */
+  experimental?: ExperimentalOptions
   // /**
   //  * Legacy options
   //  *
@@ -281,36 +281,36 @@ export interface UserConfig {
   appType?: AppType
 }
 
-// export interface ExperimentalOptions {
-//   /**
-//    * Append fake `&lang.(ext)` when queries are specified, to preserve the file extension for following plugins to process.
-//    *
-//    * @experimental
-//    * @default false
-//    */
-//   importGlobRestoreExtension?: boolean
-//   /**
-//    * Allow finegrain control over assets and public files paths
-//    *
-//    * @experimental
-//    */
-//   renderBuiltUrl?: RenderBuiltAssetUrl
-//   /**
-//    * Enables support of HMR partial accept via `import.meta.hot.acceptExports`.
-//    *
-//    * @experimental
-//    * @default false
-//    */
-//   hmrPartialAccept?: boolean
-//   /**
-//    * Skips SSR transform to make it easier to use Dite with Node ESM loaders.
-//    * @warning Enabling this will break normal operation of Dite's SSR in development mode.
-//    *
-//    * @experimental
-//    * @default false
-//    */
-//   skipSsrTransform?: boolean
-// }
+export interface ExperimentalOptions {
+  /**
+   * Append fake `&lang.(ext)` when queries are specified, to preserve the file extension for following plugins to process.
+   *
+   * @experimental
+   * @default false
+   */
+  importGlobRestoreExtension?: boolean
+  /**
+   * Allow finegrain control over assets and public files paths
+   *
+   * @experimental
+   */
+  renderBuiltUrl?: RenderBuiltAssetUrl
+  /**
+   * Enables support of HMR partial accept via `import.meta.hot.acceptExports`.
+   *
+   * @experimental
+   * @default false
+   */
+  hmrPartialAccept?: boolean
+  /**
+   * Skips SSR transform to make it easier to use Dite with Node ESM loaders.
+   * @warning Enabling this will break normal operation of Dite's SSR in development mode.
+   *
+   * @experimental
+   * @default false
+   */
+  skipSsrTransform?: boolean
+}
 
 // export interface LegacyOptions {
 //   /**
@@ -321,7 +321,7 @@ export interface UserConfig {
 //    *
 //    * In Dite 5, the proxy is removed so dev and prod are consistent, but if you still require
 //    * the old behaviour, you can enable this option. If so, please leave your feedback at
-//    * https://github.com/vitejs/dite/discussions/14697.
+//    * https://github.com/ditejs/dite/discussions/14697.
 //    */
 //   proxySsrExternalModules?: boolean
 // }
@@ -363,9 +363,9 @@ export type ResolvedConfig = Readonly<
     resolve: Required<ResolveOptions> & {
       alias: Alias[]
     }
-    //   plugins: readonly Plugin[]
-    //   css: ResolvedCSSOptions | undefined
-    //   esbuild: ESBuildOptions | false
+    plugins: readonly Plugin[]
+    css: ResolvedCSSOptions | undefined
+    esbuild: ESBuildOptions | false
     //   server: ResolvedServerOptions
     build: ResolvedBuildOptions
     //   preview: ResolvedPreviewOptions
@@ -378,7 +378,7 @@ export type ResolvedConfig = Readonly<
     packageCache: PackageCache
     //   worker: ResolvedWorkerOptions
     appType: AppType
-    //   experimental: ExperimentalOptions
+    experimental: ExperimentalOptions
   } & PluginHookUtils
 >
 
@@ -402,66 +402,66 @@ export async function resolveConfig(
   defaultMode = 'development',
   defaultNodeEnv = 'development',
 ): Promise<ResolvedConfig> {
-  const config = inlineConfig
-  const configFileDependencies: string[] = []
-  const mode = inlineConfig.mode || defaultMode
-  //   const isNodeEnvSet = !!process.env.NODE_ENV
+  let config = inlineConfig
+  let configFileDependencies: string[] = []
+  let mode = inlineConfig.mode || defaultMode
+  const isNodeEnvSet = !!process.env.NODE_ENV
   const packageCache: PackageCache = new Map()
 
-  //   // some dependencies e.g. @vue/compiler-* relies on NODE_ENV for getting
-  //   // production-specific behavior, so set it early on
-  //   if (!isNodeEnvSet) {
-  //     process.env.NODE_ENV = defaultNodeEnv
-  //   }
+  // some dependencies e.g. @vue/compiler-* relies on NODE_ENV for getting
+  // production-specific behavior, so set it early on
+  if (!isNodeEnvSet) {
+    process.env.NODE_ENV = defaultNodeEnv
+  }
 
-  //   const configEnv = {
-  //     mode,
-  //     command,
-  //     ssrBuild: !!config.build?.ssr,
-  //   }
+  const configEnv = {
+    mode,
+    command,
+    ssrBuild: !!config.build?.ssr,
+  }
 
   const { configFile } = config
-  //   if (configFile !== false) {
-  //     const loadResult = await loadConfigFromFile(
-  //       configEnv,
-  //       configFile,
-  //       config.root,
-  //       config.logLevel,
-  //     )
-  //     if (loadResult) {
-  //       config = mergeConfig(loadResult.config, config)
-  //       configFile = loadResult.path
-  //       configFileDependencies = loadResult.dependencies
-  //     }
-  //   }
+  if (configFile !== false) {
+    //     const loadResult = await loadConfigFromFile(
+    //       configEnv,
+    //       configFile,
+    //       config.root,
+    //       config.logLevel,
+    //     )
+    //     if (loadResult) {
+    //       config = mergeConfig(loadResult.config, config)
+    //       configFile = loadResult.path
+    //       configFileDependencies = loadResult.dependencies
+    //     }
+  }
 
-  // // user config may provide an alternative mode. But --mode has a higher priority
-  // mode = inlineConfig.mode || config.mode || mode
-  // configEnv.mode = mode
+  // user config may provide an alternative mode. But --mode has a higher priority
+  mode = inlineConfig.mode || config.mode || mode
+  configEnv.mode = mode
 
-  //   const filterPlugin = (p: Plugin) => {
-  //     if (!p) {
-  //       return false
-  //     } else if (!p.apply) {
-  //       return true
-  //     } else if (typeof p.apply === 'function') {
-  //       return p.apply({ ...config, mode }, configEnv)
-  //     } else {
-  //       return p.apply === command
-  //     }
-  //   }
+  const filterPlugin = (p: Plugin) => {
+    if (!p) {
+      return false
+    } else if (!p.apply) {
+      return true
+    } else if (typeof p.apply === 'function') {
+      return p.apply({ ...config, mode }, configEnv)
+    } else {
+      return p.apply === command
+    }
+  }
 
-  //   // resolve plugins
-  //   const rawUserPlugins = (
-  //     (await asyncFlatten(config.plugins || [])) as Plugin[]
-  //   ).filter(filterPlugin)
+  // resolve plugins
+  const rawUserPlugins = (
+    (await asyncFlatten(config.plugins || [])) as Plugin[]
+  ).filter(filterPlugin)
 
-  //   const [prePlugins, normalPlugins, postPlugins] =
-  //     sortUserPlugins(rawUserPlugins)
+  const [prePlugins, normalPlugins, postPlugins] =
+    sortUserPlugins(rawUserPlugins)
 
-  //   // run config hooks
-  //   const userPlugins = [...prePlugins, ...normalPlugins, ...postPlugins]
-  //   config = await runConfigHook(config, userPlugins, configEnv)
+  // run config hooks
+  const userPlugins = [...prePlugins, ...normalPlugins, ...postPlugins]
+  config = await runConfigHook(config, userPlugins, configEnv)
 
   //   // If there are custom commonjsOptions, don't force optimized deps for this test
   //   // even if the env var is set as it would interfere with the playground specs.
@@ -493,7 +493,7 @@ export async function resolveConfig(
   //       colors.yellow(
   //         `Replacing ${colors.bold(
   //           foundDiscouragedVariableName,
-  //         )} using the define option is discouraged. See https://vitejs.dev/config/shared-options.html#define for more details.`,
+  //         )} using the define option is discouraged. See https://ditejs.dev/config/shared-options.html#define for more details.`,
   //       ),
   //     )
   //   }
@@ -502,15 +502,15 @@ export async function resolveConfig(
   const resolvedRoot = normalizePath(
     config.root ? path.resolve(config.root) : process.cwd(),
   )
-  //   if (resolvedRoot.includes('#')) {
-  //     logger.warn(
-  //       colors.yellow(
-  //         `The project root contains the "#" character (${colors.cyan(
-  //           resolvedRoot,
-  //         )}), which may not work when running Dite. Consider renaming the directory to remove the "#".`,
-  //       ),
-  //     )
-  //   }
+  if (resolvedRoot.includes('#')) {
+    logger.warn(
+      colors.yellow(
+        `The project root contains the "#" character (${colors.cyan(
+          resolvedRoot,
+        )}), which may not work when running Dite. Consider renaming the directory to remove the "#".`,
+      ),
+    )
+  }
 
   const clientAlias = [
     {
@@ -759,15 +759,15 @@ export async function resolveConfig(
     isWorker: false,
     mainConfig: null,
     isProduction,
-    //     plugins: userPlugins,
-    //     css: resolveCSSOptions(config.css),
-    //     esbuild:
-    //       config.esbuild === false
-    //         ? false
-    //         : {
-    //             jsxDev: !isProduction,
-    //             ...config.esbuild,
-    //           },
+    plugins: userPlugins,
+    css: resolveCSSOptions(config.css),
+    esbuild:
+      config.esbuild === false
+        ? false
+        : {
+            jsxDev: !isProduction,
+            ...config.esbuild,
+          },
     //     server,
     build: resolvedBuildOptions,
     //     preview: resolvePreviewOptions(config.preview, server),
@@ -782,7 +782,7 @@ export async function resolveConfig(
     //     assetsInclude(file: string) {
     //       return DEFAULT_ASSETS_RE.test(file) || assetsFilter(file)
     //     },
-    //     logger,
+    logger,
     packageCache,
     //     createResolver,
     optimizeDeps: {
@@ -795,25 +795,25 @@ export async function resolveConfig(
     },
     //     worker: resolvedWorkerOptions,
     appType: config.appType ?? 'spa',
-    //     experimental: {
-    //       importGlobRestoreExtension: false,
-    //       hmrPartialAccept: false,
-    //       ...config.experimental,
-    //     },
+    experimental: {
+      importGlobRestoreExtension: false,
+      hmrPartialAccept: false,
+      ...config.experimental,
+    },
     getSortedPlugins: undefined!,
     getSortedPluginHooks: undefined!,
   }
-  //   resolved = {
-  //     ...config,
-  //     ...resolved,
-  //   }
-  //   ;(resolved.plugins as Plugin[]) = await resolvePlugins(
-  //     resolved,
-  //     prePlugins,
-  //     normalPlugins,
-  //     postPlugins,
-  //   )
-  //   Object.assign(resolved, createPluginHookUtils(resolved.plugins))
+  resolved = {
+    ...config,
+    ...resolved,
+  }
+  ;(resolved.plugins as Plugin[]) = await resolvePlugins(
+    resolved,
+    prePlugins,
+    normalPlugins,
+    postPlugins,
+  )
+  Object.assign(resolved, createPluginHookUtils(resolved.plugins))
 
   //   // call configResolved hooks
   //   await Promise.all(
@@ -876,7 +876,7 @@ export async function resolveConfig(
   //     resolved.logger.warn(
   //       colors.yellow(`
   // (!) Experimental legacy.buildSsrCjsExternalHeuristics and ssr.format were be removed in Dite 5.
-  //     The only SSR Output format is ESM. Find more information at https://github.com/vitejs/dite/discussions/13816.
+  //     The only SSR Output format is ESM. Find more information at https://github.com/ditejs/dite/discussions/13816.
   // `),
   //     )
   //   }
@@ -918,7 +918,7 @@ export function resolveBaseUrl(
 
   //   // parse base when command is serve or base is not External URL
   //   if (!isBuild || !isExternal) {
-  //     base = new URL(base, 'http://vitejs.dev').pathname
+  //     base = new URL(base, 'http://ditejs.dev').pathname
   //     // ensure leading slash
   //     if (base[0] !== '/') {
   //       base = '/' + base
@@ -928,23 +928,23 @@ export function resolveBaseUrl(
   return base
 }
 
-// export function sortUserPlugins(
-//   plugins: (Plugin | Plugin[])[] | undefined,
-// ): [Plugin[], Plugin[], Plugin[]] {
-//   const prePlugins: Plugin[] = []
-//   const postPlugins: Plugin[] = []
-//   const normalPlugins: Plugin[] = []
+export function sortUserPlugins(
+  plugins: (Plugin | Plugin[])[] | undefined,
+): [Plugin[], Plugin[], Plugin[]] {
+  const prePlugins: Plugin[] = []
+  const postPlugins: Plugin[] = []
+  const normalPlugins: Plugin[] = []
 
-//   if (plugins) {
-//     plugins.flat().forEach((p) => {
-//       if (p.enforce === 'pre') prePlugins.push(p)
-//       else if (p.enforce === 'post') postPlugins.push(p)
-//       else normalPlugins.push(p)
-//     })
-//   }
+  if (plugins) {
+    plugins.flat().forEach((p) => {
+      if (p.enforce === 'pre') prePlugins.push(p)
+      else if (p.enforce === 'post') postPlugins.push(p)
+      else normalPlugins.push(p)
+    })
+  }
 
-//   return [prePlugins, normalPlugins, postPlugins]
-// }
+  return [prePlugins, normalPlugins, postPlugins]
+}
 
 // export async function loadConfigFromFile(
 //   configEnv: ConfigEnv,
@@ -1016,9 +1016,9 @@ export function resolveBaseUrl(
 //   fileName: string,
 //   isESM: boolean,
 // ): Promise<{ code: string; dependencies: string[] }> {
-//   const dirnameVarName = '__vite_injected_original_dirname'
-//   const filenameVarName = '__vite_injected_original_filename'
-//   const importMetaUrlVarName = '__vite_injected_original_import_meta_url'
+//   const dirnameVarName = '__dite_injected_original_dirname'
+//   const filenameVarName = '__dite_injected_original_filename'
+//   const importMetaUrlVarName = '__dite_injected_original_import_meta_url'
 //   const result = await build({
 //     absWorkingDir: process.cwd(),
 //     entryPoints: [fileName],
@@ -1040,7 +1040,7 @@ export function resolveBaseUrl(
 //         name: 'externalize-deps',
 //         setup(build) {
 //           const packageCache = new Map()
-//           const resolveByViteResolver = (
+//           const resolveByDiteResolver = (
 //             id: string,
 //             importer: string,
 //             isRequire: boolean,
@@ -1089,12 +1089,12 @@ export function resolveBaseUrl(
 //               const isImport = isESM || kind === 'dynamic-import'
 //               let idFsPath: string | undefined
 //               try {
-//                 idFsPath = resolveByViteResolver(id, importer, !isImport)
+//                 idFsPath = resolveByDiteResolver(id, importer, !isImport)
 //               } catch (e) {
 //                 if (!isImport) {
 //                   let canResolveWithImport = false
 //                   try {
-//                     canResolveWithImport = !!resolveByViteResolver(
+//                     canResolveWithImport = !!resolveByDiteResolver(
 //                       id,
 //                       importer,
 //                       false,
@@ -1104,7 +1104,7 @@ export function resolveBaseUrl(
 //                     throw new Error(
 //                       `Failed to resolve ${JSON.stringify(
 //                         id,
-//                       )}. This package is ESM only but it was tried to load by \`require\`. See http://vitejs.dev/guide/troubleshooting.html#this-package-is-esm-only for more details.`,
+//                       )}. This package is ESM only but it was tried to load by \`require\`. See http://ditejs.dev/guide/troubleshooting.html#this-package-is-esm-only for more details.`,
 //                     )
 //                   }
 //                 }
@@ -1121,7 +1121,7 @@ export function resolveBaseUrl(
 //                 throw new Error(
 //                   `${JSON.stringify(
 //                     id,
-//                   )} resolved to an ESM file. ESM file cannot be loaded by \`require\`. See http://vitejs.dev/guide/troubleshooting.html#this-package-is-esm-only for more details.`,
+//                   )} resolved to an ESM file. ESM file cannot be loaded by \`require\`. See http://ditejs.dev/guide/troubleshooting.html#this-package-is-esm-only for more details.`,
 //                 )
 //               }
 //               return {
@@ -1194,7 +1194,7 @@ export function resolveBaseUrl(
 //     // We don't use fsp.realpath() here because it has the same behaviour as
 //     // fs.realpath.native. On some Windows systems, it returns uppercase volume
 //     // letters (e.g. "C:\") while the Node.js loader uses lowercase volume letters.
-//     // See https://github.com/vitejs/dite/issues/12923
+//     // See https://github.com/ditejs/dite/issues/12923
 //     const realFileName = await promisifiedRealpath(fileName)
 //     const loaderExt = extension in _require.extensions ? extension : '.js'
 //     const defaultLoader = _require.extensions[loaderExt]!
@@ -1213,26 +1213,26 @@ export function resolveBaseUrl(
 //   }
 // }
 
-// async function runConfigHook(
-//   config: InlineConfig,
-//   plugins: Plugin[],
-//   configEnv: ConfigEnv,
-// ): Promise<InlineConfig> {
-//   let conf = config
+async function runConfigHook(
+  config: InlineConfig,
+  plugins: Plugin[],
+  configEnv: ConfigEnv,
+): Promise<InlineConfig> {
+  let conf = config
 
-//   for (const p of getSortedPluginsByHook('config', plugins)) {
-//     const hook = p.config
-//     const handler = hook && 'handler' in hook ? hook.handler : hook
-//     if (handler) {
-//       const res = await handler(conf, configEnv)
-//       if (res) {
-//         conf = mergeConfig(conf, res)
-//       }
-//     }
-//   }
+  for (const p of getSortedPluginsByHook('config', plugins)) {
+    const hook = p.config
+    const handler = hook && 'handler' in hook ? hook.handler : hook
+    if (handler) {
+      const res = await handler(conf, configEnv)
+      if (res) {
+        conf = mergeConfig(conf, res)
+      }
+    }
+  }
 
-//   return conf
-// }
+  return conf
+}
 
 export function getDepOptimizationConfig(
   config: ResolvedConfig,

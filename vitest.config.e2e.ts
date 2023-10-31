@@ -17,7 +17,7 @@ export default defineConfig({
     hookTimeout: timeout,
     reporters: 'dot',
     deps: {
-      // Prevent Vitest from running the workspace packages in Dite's SSR runtime
+      // Prevent Ditest from running the workspace packages in Dite's SSR runtime
       moduleDirectories: ['node_modules', 'packages'],
     },
     onConsoleLog(log) {

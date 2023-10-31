@@ -37,7 +37,7 @@ export type {
 // export type { FilterPattern } from './utils'
 // export type { CorsOptions, CorsOrigin, CommonServerOptions } from './http'
 // export type {
-//   ViteDevServer,
+//   DiteDevServer,
 //   ServerOptions,
 //   FileSystemServeOptions,
 //   ServerHook,

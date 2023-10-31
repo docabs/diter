@@ -52,71 +52,71 @@ export interface PackageData {
 //   })
 // }
 
-// export function resolvePackageData(
-//   pkgName: string,
-//   basedir: string,
-//   preserveSymlinks = false,
-//   packageCache?: PackageCache,
-// ): PackageData | null {
-//   if (pnp) {
-//     const cacheKey = getRpdCacheKey(pkgName, basedir, preserveSymlinks)
-//     if (packageCache?.has(cacheKey)) return packageCache.get(cacheKey)!
+export function resolvePackageData(
+  pkgName: string,
+  basedir: string,
+  preserveSymlinks = false,
+  packageCache?: PackageCache,
+): PackageData | null {
+  //   if (pnp) {
+  //     const cacheKey = getRpdCacheKey(pkgName, basedir, preserveSymlinks)
+  //     if (packageCache?.has(cacheKey)) return packageCache.get(cacheKey)!
 
-//     try {
-//       const pkg = pnp.resolveToUnqualified(pkgName, basedir, {
-//         considerBuiltins: false,
-//       })
-//       if (!pkg) return null
+  //     try {
+  //       const pkg = pnp.resolveToUnqualified(pkgName, basedir, {
+  //         considerBuiltins: false,
+  //       })
+  //       if (!pkg) return null
 
-//       const pkgData = loadPackageData(path.join(pkg, 'package.json'))
-//       packageCache?.set(cacheKey, pkgData)
-//       return pkgData
-//     } catch {
-//       return null
-//     }
-//   }
+  //       const pkgData = loadPackageData(path.join(pkg, 'package.json'))
+  //       packageCache?.set(cacheKey, pkgData)
+  //       return pkgData
+  //     } catch {
+  //       return null
+  //     }
+  //   }
 
-//   const originalBasedir = basedir
-//   while (basedir) {
-//     if (packageCache) {
-//       const cached = getRpdCache(
-//         packageCache,
-//         pkgName,
-//         basedir,
-//         originalBasedir,
-//         preserveSymlinks,
-//       )
-//       if (cached) return cached
-//     }
+  //   const originalBasedir = basedir
+  //   while (basedir) {
+  //     if (packageCache) {
+  //       const cached = getRpdCache(
+  //         packageCache,
+  //         pkgName,
+  //         basedir,
+  //         originalBasedir,
+  //         preserveSymlinks,
+  //       )
+  //       if (cached) return cached
+  //     }
 
-//     const pkg = path.join(basedir, 'node_modules', pkgName, 'package.json')
-//     try {
-//       if (fs.existsSync(pkg)) {
-//         const pkgPath = preserveSymlinks ? pkg : safeRealpathSync(pkg)
-//         const pkgData = loadPackageData(pkgPath)
+  //     const pkg = path.join(basedir, 'node_modules', pkgName, 'package.json')
+  //     try {
+  //       if (fs.existsSync(pkg)) {
+  //         const pkgPath = preserveSymlinks ? pkg : safeRealpathSync(pkg)
+  //         const pkgData = loadPackageData(pkgPath)
 
-//         if (packageCache) {
-//           setRpdCache(
-//             packageCache,
-//             pkgData,
-//             pkgName,
-//             basedir,
-//             originalBasedir,
-//             preserveSymlinks,
-//           )
-//         }
+  //         if (packageCache) {
+  //           setRpdCache(
+  //             packageCache,
+  //             pkgData,
+  //             pkgName,
+  //             basedir,
+  //             originalBasedir,
+  //             preserveSymlinks,
+  //           )
+  //         }
 
-//         return pkgData
-//       }
-//     } catch {}
+  //         return pkgData
+  //       }
+  //     } catch {}
 
-//     const nextBasedir = path.dirname(basedir)
-//     if (nextBasedir === basedir) break
-//     basedir = nextBasedir
-//   }
+  //     const nextBasedir = path.dirname(basedir)
+  //     if (nextBasedir === basedir) break
+  //     basedir = nextBasedir
+  //   }
 
-//   return null
-// }
+  return null
+}
 
 export function findNearestPackageData(
   basedir: string,
@@ -179,7 +179,7 @@ export function findNearestPackageData(
 //       /*
 //        * The array accepts simple glob patterns to the relevant files... Patterns like *.css, which do not include a /, will be treated like **\/*.css.
 //        * https://webpack.js.org/guides/tree-shaking/
-//        * https://github.com/vitejs/vite/pull/11807
+//        * https://github.com/ditejs/dite/pull/11807
 //        */
 //       if (sideEffect.includes('/')) {
 //         return sideEffect
@@ -239,7 +239,7 @@ export function findNearestPackageData(
 //   }
 
 //   return {
-//     name: 'vite:watch-package-data',
+//     name: 'dite:watch-package-data',
 //     buildStart() {
 //       watchFile = this.addWatchFile.bind(this)
 //       watchQueue.forEach(watchFile)

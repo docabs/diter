@@ -48,7 +48,7 @@
 // // which may not support all module.exports as named exports
 // const { loadConfig: browserslistLoadConfig } = browserslist
 
-// // Duplicated from build.ts in Vite Core, at least while the feature is experimental
+// // Duplicated from build.ts in Dite Core, at least while the feature is experimental
 // // We should later expose this helper for other plugins to use
 // function toOutputFilePathInHtml(
 //   filename: string,
@@ -115,11 +115,11 @@
 //   )
 // }
 
-// const legacyEnvVarMarker = `__VITE_IS_LEGACY__`
+// const legacyEnvVarMarker = `__DITE_IS_LEGACY__`
 
 // const _require = createRequire(import.meta.url)
 
-// function viteLegacyPlugin(options: Options = {}): Plugin[] {
+// function diteLegacyPlugin(options: Options = {}): Plugin[] {
 //   let config: ResolvedConfig
 //   let targets: Options['targets']
 
@@ -199,7 +199,7 @@
 //         }
 
 //         if (genLegacy) {
-//           // Vite's default target browsers are **not** the same.
+//           // Dite's default target browsers are **not** the same.
 //           // See https://github.com/ditejs/dite/pull/10052#issuecomment-1242076461
 //           overriddenBuildTarget = config.build.target !== undefined
 //           config.build.target = modernTargetsEsbuild
@@ -637,30 +637,30 @@ export async function detectPolyfills(
   targets: any,
   list: Set<string>,
 ): Promise<void> {
-//   const babel = await loadBabel()
-//   const result = babel.transform(code, {
-//     ast: true,
-//     babelrc: false,
-//     configFile: false,
-//     compact: false,
-//     presets: [
-//       [
-//         (await import('@babel/preset-env')).default,
-//         createBabelPresetEnvOptions(targets, {}),
-//       ],
-//     ],
-//   })
-//   for (const node of result!.ast!.program.body) {
-//     if (node.type === 'ImportDeclaration') {
-//       const source = node.source.value
-//       if (
-//         source.startsWith('core-js/') ||
-//         source.startsWith('regenerator-runtime/')
-//       ) {
-//         list.add(source)
-//       }
-//     }
-//   }
+  //   const babel = await loadBabel()
+  //   const result = babel.transform(code, {
+  //     ast: true,
+  //     babelrc: false,
+  //     configFile: false,
+  //     compact: false,
+  //     presets: [
+  //       [
+  //         (await import('@babel/preset-env')).default,
+  //         createBabelPresetEnvOptions(targets, {}),
+  //       ],
+  //     ],
+  //   })
+  //   for (const node of result!.ast!.program.body) {
+  //     if (node.type === 'ImportDeclaration') {
+  //       const source = node.source.value
+  //       if (
+  //         source.startsWith('core-js/') ||
+  //         source.startsWith('regenerator-runtime/')
+  //       ) {
+  //         list.add(source)
+  //       }
+  //     }
+  //   }
 }
 
 // function createBabelPresetEnvOptions(
@@ -749,7 +749,7 @@ export async function detectPolyfills(
 //   return polyfillChunk
 // }
 
-// const polyfillId = '\0vite/legacy-polyfills'
+// const polyfillId = '\0dite/legacy-polyfills'
 
 // function polyfillsPlugin(
 //   imports: Set<string>,
@@ -844,4 +844,4 @@ export async function detectPolyfills(
 //   dynamicFallbackInlineCode,
 // ].map((i) => createHash('sha256').update(i).digest('base64'))
 
-// export default viteLegacyPlugin
+// export default diteLegacyPlugin

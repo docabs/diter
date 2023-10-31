@@ -11,7 +11,7 @@ import type {
 // export type { PluginContext } from 'rollup'
 import type { ConfigEnv, ResolvedConfig, UserConfig } from './config'
 // import type { ServerHook } from './server'
-// import type { IndexHtmlTransform } from './plugins/html'
+import type { IndexHtmlTransform } from './plugins/html'
 // import type { ModuleNode } from './server/moduleGraph'
 // import type { HmrContext } from './server/hmr'
 // import type { PreviewServerHook } from './preview'
@@ -83,98 +83,98 @@ export interface Plugin<A = any> extends RollupPlugin<A> {
   configResolved?: ObjectHook<
     (this: void, config: ResolvedConfig) => void | Promise<void>
   >
-  //   /**
-  //    * Configure the dite server. The hook receives the {@link ViteDevServer}
-  //    * instance. This can also be used to store a reference to the server
-  //    * for use in other hooks.
-  //    *
-  //    * The hooks will be called before internal middlewares are applied. A hook
-  //    * can return a post hook that will be called after internal middlewares
-  //    * are applied. Hook can be async functions and will be called in series.
-  //    */
-  //   configureServer?: ObjectHook<ServerHook>
-  //   /**
-  //    * Configure the preview server. The hook receives the {@link PreviewServer}
-  //    * instance. This can also be used to store a reference to the server
-  //    * for use in other hooks.
-  //    *
-  //    * The hooks are called before other middlewares are applied. A hook can
-  //    * return a post hook that will be called after other middlewares are
-  //    * applied. Hooks can be async functions and will be called in series.
-  //    */
-  //   configurePreviewServer?: ObjectHook<PreviewServerHook>
-  //   /**
-  //    * Transform index.html.
-  //    * The hook receives the following arguments:
-  //    *
-  //    * - html: string
-  //    * - ctx?: dite.ServerContext (only present during serve)
-  //    * - bundle?: rollup.OutputBundle (only present during build)
-  //    *
-  //    * It can either return a transformed string, or a list of html tag
-  //    * descriptors that will be injected into the `<head>` or `<body>`.
-  //    *
-  //    * By default the transform is applied **after** dite's internal html
-  //    * transform. If you need to apply the transform before dite, use an object:
-  //    * `{ order: 'pre', handler: hook }`
-  //    */
-  //   transformIndexHtml?: IndexHtmlTransform
-  //   /**
-  //    * Perform custom handling of HMR updates.
-  //    * The handler receives a context containing changed filename, timestamp, a
-  //    * list of modules affected by the file change, and the dev server instance.
-  //    *
-  //    * - The hook can return a filtered list of modules to narrow down the update.
-  //    *   e.g. for a Vue SFC, we can narrow down the part to update by comparing
-  //    *   the descriptors.
-  //    *
-  //    * - The hook can also return an empty array and then perform custom updates
-  //    *   by sending a custom hmr payload via server.ws.send().
-  //    *
-  //    * - If the hook doesn't return a value, the hmr update will be performed as
-  //    *   normal.
-  //    */
-  //   handleHotUpdate?: ObjectHook<
-  //     (
-  //       this: void,
-  //       ctx: HmrContext,
-  //     ) => Array<ModuleNode> | void | Promise<Array<ModuleNode> | void>
-  //   >
-  //   /**
-  //    * extend hooks with ssr flag
-  //    */
-  //   resolveId?: ObjectHook<
-  //     (
-  //       this: PluginContext,
-  //       source: string,
-  //       importer: string | undefined,
-  //       options: {
-  //         attributes: Record<string, string>
-  //         custom?: CustomPluginOptions
-  //         ssr?: boolean
-  //         /**
-  //          * @internal
-  //          */
-  //         scan?: boolean
-  //         isEntry: boolean
-  //       },
-  //     ) => Promise<ResolveIdResult> | ResolveIdResult
-  //   >
-  //   load?: ObjectHook<
-  //     (
-  //       this: PluginContext,
-  //       id: string,
-  //       options?: { ssr?: boolean },
-  //     ) => Promise<LoadResult> | LoadResult
-  //   >
-  //   transform?: ObjectHook<
-  //     (
-  //       this: TransformPluginContext,
-  //       code: string,
-  //       id: string,
-  //       options?: { ssr?: boolean },
-  //     ) => Promise<TransformResult> | TransformResult
-  //   >
+  // /**
+  //  * Configure the dite server. The hook receives the {@link DiteDevServer}
+  //  * instance. This can also be used to store a reference to the server
+  //  * for use in other hooks.
+  //  *
+  //  * The hooks will be called before internal middlewares are applied. A hook
+  //  * can return a post hook that will be called after internal middlewares
+  //  * are applied. Hook can be async functions and will be called in series.
+  //  */
+  // configureServer?: ObjectHook<ServerHook>
+  // /**
+  //  * Configure the preview server. The hook receives the {@link PreviewServer}
+  //  * instance. This can also be used to store a reference to the server
+  //  * for use in other hooks.
+  //  *
+  //  * The hooks are called before other middlewares are applied. A hook can
+  //  * return a post hook that will be called after other middlewares are
+  //  * applied. Hooks can be async functions and will be called in series.
+  //  */
+  // configurePreviewServer?: ObjectHook<PreviewServerHook>
+  /**
+   * Transform index.html.
+   * The hook receives the following arguments:
+   *
+   * - html: string
+   * - ctx?: dite.ServerContext (only present during serve)
+   * - bundle?: rollup.OutputBundle (only present during build)
+   *
+   * It can either return a transformed string, or a list of html tag
+   * descriptors that will be injected into the `<head>` or `<body>`.
+   *
+   * By default the transform is applied **after** dite's internal html
+   * transform. If you need to apply the transform before dite, use an object:
+   * `{ order: 'pre', handler: hook }`
+   */
+  transformIndexHtml?: IndexHtmlTransform
+  // /**
+  //  * Perform custom handling of HMR updates.
+  //  * The handler receives a context containing changed filename, timestamp, a
+  //  * list of modules affected by the file change, and the dev server instance.
+  //  *
+  //  * - The hook can return a filtered list of modules to narrow down the update.
+  //  *   e.g. for a Vue SFC, we can narrow down the part to update by comparing
+  //  *   the descriptors.
+  //  *
+  //  * - The hook can also return an empty array and then perform custom updates
+  //  *   by sending a custom hmr payload via server.ws.send().
+  //  *
+  //  * - If the hook doesn't return a value, the hmr update will be performed as
+  //  *   normal.
+  //  */
+  // handleHotUpdate?: ObjectHook<
+  //   (
+  //     this: void,
+  //     ctx: HmrContext,
+  //   ) => Array<ModuleNode> | void | Promise<Array<ModuleNode> | void>
+  // >
+  /**
+   * extend hooks with ssr flag
+   */
+  resolveId?: ObjectHook<
+    (
+      this: PluginContext,
+      source: string,
+      importer: string | undefined,
+      options: {
+        attributes: Record<string, string>
+        custom?: CustomPluginOptions
+        ssr?: boolean
+        /**
+         * @internal
+         */
+        scan?: boolean
+        isEntry: boolean
+      },
+    ) => Promise<ResolveIdResult> | ResolveIdResult
+  >
+  load?: ObjectHook<
+    (
+      this: PluginContext,
+      id: string,
+      options?: { ssr?: boolean },
+    ) => Promise<LoadResult> | LoadResult
+  >
+  transform?: ObjectHook<
+    (
+      this: TransformPluginContext,
+      code: string,
+      id: string,
+      options?: { ssr?: boolean },
+    ) => Promise<TransformResult> | TransformResult
+  >
 }
 
 export type HookHandler<T> = T extends ObjectHook<infer H> ? H : T

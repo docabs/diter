@@ -1,37 +1,37 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-// import { exec } from 'node:child_process'
-// import { createHash } from 'node:crypto'
+import { exec } from 'node:child_process'
+import { createHash } from 'node:crypto'
 // import { URL, URLSearchParams, fileURLToPath } from 'node:url'
-// import { builtinModules, createRequire } from 'node:module'
+import { builtinModules, createRequire } from 'node:module'
 // import { promises as dns } from 'node:dns'
 // import { performance } from 'node:perf_hooks'
 // import type { AddressInfo, Server } from 'node:net'
 // import type { FSWatcher } from 'chokidar'
-// import remapping from '@ampproject/remapping'
-// import type { DecodedSourceMap, RawSourceMap } from '@ampproject/remapping'
+import remapping from '@ampproject/remapping'
+import type { DecodedSourceMap, RawSourceMap } from '@ampproject/remapping'
 // import colors from 'picocolors'
-// import debug from 'debug'
+import debug from 'debug'
 import type { Alias, AliasOptions } from 'dep-types/alias'
 // import type MagicString from 'magic-string'
 
 // import type { TransformResult } from 'rollup'
-// import { createFilter as _createFilter } from '@rollup/pluginutils'
-// import {
-//   CLIENT_ENTRY,
-//   CLIENT_PUBLIC_PATH,
-//   ENV_PUBLIC_PATH,
-//   FS_PREFIX,
-//   NULL_BYTE_PLACEHOLDER,
-//   OPTIMIZABLE_ENTRY_RE,
-//   VALID_ID_PREFIX,
-//   loopbackHosts,
-//   wildcardHosts,
-// } from './constants'
+import { createFilter as _createFilter } from '@rollup/pluginutils'
+import {
+  CLIENT_ENTRY,
+  CLIENT_PUBLIC_PATH,
+  ENV_PUBLIC_PATH,
+  FS_PREFIX,
+  NULL_BYTE_PLACEHOLDER,
+  OPTIMIZABLE_ENTRY_RE,
+  VALID_ID_PREFIX,
+  loopbackHosts,
+  wildcardHosts,
+} from './constants'
 // import type { DepOptimizationConfig } from './optimizer'
 // import type { ResolvedConfig } from './config'
-// import type { ResolvedServerUrls, ViteDevServer } from './server'
+// import type { ResolvedServerUrls, DiteDevServer } from './server'
 // import type { PreviewServer } from './preview'
 // import {
 //   type PackageCache,
@@ -40,19 +40,19 @@ import type { Alias, AliasOptions } from 'dep-types/alias'
 // } from './packages'
 // import type { CommonServerOptions } from '.'
 
-// /**
-//  * Inlined to keep `@rollup/pluginutils` in devDependencies
-//  */
-// export type FilterPattern =
-//   | ReadonlyArray<string | RegExp>
-//   | string
-//   | RegExp
-//   | null
-// export const createFilter = _createFilter as (
-//   include?: FilterPattern,
-//   exclude?: FilterPattern,
-//   options?: { resolve?: string | false | null },
-// ) => (id: string | unknown) => boolean
+/**
+ * Inlined to keep `@rollup/pluginutils` in devDependencies
+ */
+export type FilterPattern =
+  | ReadonlyArray<string | RegExp>
+  | string
+  | RegExp
+  | null
+export const createFilter = _createFilter as (
+  include?: FilterPattern,
+  exclude?: FilterPattern,
+  options?: { resolve?: string | false | null },
+) => (id: string | unknown) => boolean
 
 const windowsSlashRE = /\\/g
 export function slash(p: string): string {
@@ -110,30 +110,30 @@ export function slash(p: string): string {
 // export const normalizeId = (id: string): string =>
 //   id.replace(replaceNestedIdRE, ' > ')
 
-// // Supported by Node, Deno, Bun
-// const NODE_BUILTIN_NAMESPACE = 'node:'
-// // Supported by Deno
-// const NPM_BUILTIN_NAMESPACE = 'npm:'
-// // Supported by Bun
-// const BUN_BUILTIN_NAMESPACE = 'bun:'
-// // Some runtimes like Bun injects namespaced modules here, which is not a node builtin
-// const nodeBuiltins = builtinModules.filter((id) => !id.includes(':'))
+// Supported by Node, Deno, Bun
+const NODE_BUILTIN_NAMESPACE = 'node:'
+// Supported by Deno
+const NPM_BUILTIN_NAMESPACE = 'npm:'
+// Supported by Bun
+const BUN_BUILTIN_NAMESPACE = 'bun:'
+// Some runtimes like Bun injects namespaced modules here, which is not a node builtin
+const nodeBuiltins = builtinModules.filter((id) => !id.includes(':'))
 
-// // TODO: Use `isBuiltin` from `node:module`, but Deno doesn't support it
-// export function isBuiltin(id: string): boolean {
-//   if (process.versions.deno && id.startsWith(NPM_BUILTIN_NAMESPACE)) return true
-//   if (process.versions.bun && id.startsWith(BUN_BUILTIN_NAMESPACE)) return true
-//   return isNodeBuiltin(id)
-// }
+// TODO: Use `isBuiltin` from `node:module`, but Deno doesn't support it
+export function isBuiltin(id: string): boolean {
+  if (process.versions.deno && id.startsWith(NPM_BUILTIN_NAMESPACE)) return true
+  if (process.versions.bun && id.startsWith(BUN_BUILTIN_NAMESPACE)) return true
+  return isNodeBuiltin(id)
+}
 
-// export function isNodeBuiltin(id: string): boolean {
-//   if (id.startsWith(NODE_BUILTIN_NAMESPACE)) return true
-//   return nodeBuiltins.includes(id)
-// }
+export function isNodeBuiltin(id: string): boolean {
+  if (id.startsWith(NODE_BUILTIN_NAMESPACE)) return true
+  return nodeBuiltins.includes(id)
+}
 
-// export function isInNodeModules(id: string): boolean {
-//   return id.includes('node_modules')
-// }
+export function isInNodeModules(id: string): boolean {
+  return id.includes('node_modules')
+}
 
 // export function moduleListContains(
 //   moduleList: string[] | undefined,
@@ -155,44 +155,44 @@ export function slash(p: string): string {
 //   )
 // }
 
-// export const bareImportRE = /^(?![a-zA-Z]:)[\w@](?!.*:\/\/)/
-// export const deepImportRE = /^([^@][^/]*)\/|^(@[^/]+\/[^/]+)\//
+export const bareImportRE = /^(?![a-zA-Z]:)[\w@](?!.*:\/\/)/
+export const deepImportRE = /^([^@][^/]*)\/|^(@[^/]+\/[^/]+)\//
 
-// // TODO: use import()
-// const _require = createRequire(import.meta.url)
+// TODO: use import()
+const _require = createRequire(import.meta.url)
 
-// // set in bin/vite.js
-// const filter = process.env.VITE_DEBUG_FILTER
+// set in bin/dite.js
+const filter = process.env.DITE_DEBUG_FILTER
 
-// const DEBUG = process.env.DEBUG
+const DEBUG = process.env.DEBUG
 
-// interface DebuggerOptions {
-//   onlyWhenFocused?: boolean | string
-// }
+interface DebuggerOptions {
+  onlyWhenFocused?: boolean | string
+}
 
-// export type ViteDebugScope = `vite:${string}`
+export type DiteDebugScope = `dite:${string}`
 
-// export function createDebugger(
-//   namespace: ViteDebugScope,
-//   options: DebuggerOptions = {},
-// ): debug.Debugger['log'] | undefined {
-//   const log = debug(namespace)
-//   const { onlyWhenFocused } = options
+export function createDebugger(
+  namespace: DiteDebugScope,
+  options: DebuggerOptions = {},
+): debug.Debugger['log'] | undefined {
+  const log = debug(namespace)
+  const { onlyWhenFocused } = options
 
-//   let enabled = log.enabled
-//   if (enabled && onlyWhenFocused) {
-//     const ns = typeof onlyWhenFocused === 'string' ? onlyWhenFocused : namespace
-//     enabled = !!DEBUG?.includes(ns)
-//   }
+  let enabled = log.enabled
+  if (enabled && onlyWhenFocused) {
+    const ns = typeof onlyWhenFocused === 'string' ? onlyWhenFocused : namespace
+    enabled = !!DEBUG?.includes(ns)
+  }
 
-//   if (enabled) {
-//     return (...args: [string, ...any[]]) => {
-//       if (!filter || args.some((a) => a?.includes?.(filter))) {
-//         log(...args)
-//       }
-//     }
-//   }
-// }
+  if (enabled) {
+    return (...args: [string, ...any[]]) => {
+      if (!filter || args.some((a) => a?.includes?.(filter))) {
+        log(...args)
+      }
+    }
+  }
+}
 
 // function testCaseInsensitiveFS() {
 //   if (!CLIENT_ENTRY.endsWith('client.mjs')) {
@@ -209,38 +209,38 @@ export function slash(p: string): string {
 //   return fs.existsSync(CLIENT_ENTRY.replace('client.mjs', 'cLiEnT.mjs'))
 // }
 
-// export const urlCanParse =
-//   URL.canParse ??
-//   // URL.canParse is supported from Node.js 18.17.0+, 20.0.0+
-//   ((path: string, base?: string | undefined): boolean => {
-//     try {
-//       new URL(path, base)
-//       return true
-//     } catch {
-//       return false
-//     }
-//   })
+export const urlCanParse =
+  URL.canParse ??
+  // URL.canParse is supported from Node.js 18.17.0+, 20.0.0+
+  ((path: string, base?: string | undefined): boolean => {
+    try {
+      new URL(path, base)
+      return true
+    } catch {
+      return false
+    }
+  })
 
 // export const isCaseInsensitiveFS = testCaseInsensitiveFS()
 
 export const isWindows = os.platform() === 'win32'
 
-// const VOLUME_RE = /^[A-Z]:/i
+const VOLUME_RE = /^[A-Z]:/i
 
 export function normalizePath(id: string): string {
   return path.posix.normalize(isWindows ? slash(id) : id)
 }
 
-// export function fsPathFromId(id: string): string {
-//   const fsPath = normalizePath(
-//     id.startsWith(FS_PREFIX) ? id.slice(FS_PREFIX.length) : id,
-//   )
-//   return fsPath[0] === '/' || fsPath.match(VOLUME_RE) ? fsPath : `/${fsPath}`
-// }
+export function fsPathFromId(id: string): string {
+  const fsPath = normalizePath(
+    id.startsWith(FS_PREFIX) ? id.slice(FS_PREFIX.length) : id,
+  )
+  return fsPath[0] === '/' || fsPath.match(VOLUME_RE) ? fsPath : `/${fsPath}`
+}
 
-// export function fsPathFromUrl(url: string): string {
-//   return fsPathFromId(cleanUrl(url))
-// }
+export function fsPathFromUrl(url: string): string {
+  return fsPathFromId(cleanUrl(url))
+}
 
 export function withTrailingSlash(path: string): string {
   if (path[path.length - 1] !== '/') {
@@ -284,16 +284,16 @@ export function withTrailingSlash(path: string): string {
 
 // export const queryRE = /\?.*$/s
 
-// const postfixRE = /[?#].*$/s
-// export function cleanUrl(url: string): string {
-//   return url.replace(postfixRE, '')
-// }
+const postfixRE = /[?#].*$/s
+export function cleanUrl(url: string): string {
+  return url.replace(postfixRE, '')
+}
 
-// export const externalRE = /^(https?:)?\/\//
-// export const isExternalUrl = (url: string): boolean => externalRE.test(url)
+export const externalRE = /^(https?:)?\/\//
+export const isExternalUrl = (url: string): boolean => externalRE.test(url)
 
-// export const dataUrlRE = /^\s*data:/i
-// export const isDataUrl = (url: string): boolean => dataUrlRE.test(url)
+export const dataUrlRE = /^\s*data:/i
+export const isDataUrl = (url: string): boolean => dataUrlRE.test(url)
 
 // export const virtualModuleRE = /^virtual-module:.*/
 // export const virtualModulePrefix = 'virtual-module:'
@@ -311,17 +311,17 @@ export function withTrailingSlash(path: string): string {
 //   return false
 // }
 
-// const knownTsRE = /\.(?:ts|mts|cts|tsx)(?:$|\?)/
-// export const isTsRequest = (url: string): boolean => knownTsRE.test(url)
+const knownTsRE = /\.(?:ts|mts|cts|tsx)(?:$|\?)/
+export const isTsRequest = (url: string): boolean => knownTsRE.test(url)
 
 // const importQueryRE = /(\?|&)import=?(?:&|$)/
 // const directRequestRE = /(\?|&)direct=?(?:&|$)/
-// const internalPrefixes = [
-//   FS_PREFIX,
-//   VALID_ID_PREFIX,
-//   CLIENT_PUBLIC_PATH,
-//   ENV_PUBLIC_PATH,
-// ]
+const internalPrefixes = [
+  FS_PREFIX,
+  VALID_ID_PREFIX,
+  CLIENT_PUBLIC_PATH,
+  ENV_PUBLIC_PATH,
+]
 // const InternalPrefixRE = new RegExp(`^(?:${internalPrefixes.join('|')})`)
 // const trailingSeparatorRE = /[?&]$/
 // export const isImportRequest = (url: string): boolean => importQueryRE.test(url)
@@ -335,21 +335,21 @@ export function withTrailingSlash(path: string): string {
 //   return url.replace(directRequestRE, '$1').replace(trailingSeparatorRE, '')
 // }
 
-// const replacePercentageRE = /%/g
-// export function injectQuery(url: string, queryToInject: string): string {
-//   // encode percents for consistent behavior with pathToFileURL
-//   // see #2614 for details
-//   const resolvedUrl = new URL(
-//     url.replace(replacePercentageRE, '%25'),
-//     'relative:///',
-//   )
-//   const { search, hash } = resolvedUrl
-//   let pathname = cleanUrl(url)
-//   pathname = isWindows ? slash(pathname) : pathname
-//   return `${pathname}?${queryToInject}${search ? `&` + search.slice(1) : ''}${
-//     hash ?? ''
-//   }`
-// }
+const replacePercentageRE = /%/g
+export function injectQuery(url: string, queryToInject: string): string {
+  // encode percents for consistent behavior with pathToFileURL
+  // see #2614 for details
+  const resolvedUrl = new URL(
+    url.replace(replacePercentageRE, '%25'),
+    'relative:///',
+  )
+  const { search, hash } = resolvedUrl
+  let pathname = cleanUrl(url)
+  pathname = isWindows ? slash(pathname) : pathname
+  return `${pathname}?${queryToInject}${search ? `&` + search.slice(1) : ''}${
+    hash ?? ''
+  }`
+}
 
 // const timestampRE = /\bt=\d{13}&?\b/
 // export function removeTimestampQuery(url: string): string {
@@ -451,28 +451,28 @@ export function tryStatSync(file: string): fs.Stats | undefined {
 //   }
 // }
 
-// const splitRE = /\r?\n/
+const splitRE = /\r?\n/
 
-// const range: number = 2
+const range: number = 2
 
-// export function pad(source: string, n = 2): string {
-//   const lines = source.split(splitRE)
-//   return lines.map((l) => ` `.repeat(n) + l).join(`\n`)
-// }
+export function pad(source: string, n = 2): string {
+  const lines = source.split(splitRE)
+  return lines.map((l) => ` `.repeat(n) + l).join(`\n`)
+}
 
-// export function posToNumber(
-//   source: string,
-//   pos: number | { line: number; column: number },
-// ): number {
-//   if (typeof pos === 'number') return pos
-//   const lines = source.split(splitRE)
-//   const { line, column } = pos
-//   let start = 0
-//   for (let i = 0; i < line - 1 && i < lines.length; i++) {
-//     start += lines[i].length + 1
-//   }
-//   return start + column
-// }
+export function posToNumber(
+  source: string,
+  pos: number | { line: number; column: number },
+): number {
+  if (typeof pos === 'number') return pos
+  const lines = source.split(splitRE)
+  const { line, column } = pos
+  let start = 0
+  for (let i = 0; i < line - 1 && i < lines.length; i++) {
+    start += lines[i].length + 1
+  }
+  return start + column
+}
 
 // export function numberToPos(
 //   source: string,
@@ -499,49 +499,49 @@ export function tryStatSync(file: string): fs.Stats | undefined {
 //   return { line: line + 1, column }
 // }
 
-// export function generateCodeFrame(
-//   source: string,
-//   start: number | { line: number; column: number } = 0,
-//   end?: number,
-// ): string {
-//   start = posToNumber(source, start)
-//   end = end || start
-//   const lines = source.split(splitRE)
-//   let count = 0
-//   const res: string[] = []
-//   for (let i = 0; i < lines.length; i++) {
-//     count += lines[i].length + 1
-//     if (count >= start) {
-//       for (let j = i - range; j <= i + range || end > count; j++) {
-//         if (j < 0 || j >= lines.length) continue
-//         const line = j + 1
-//         res.push(
-//           `${line}${' '.repeat(Math.max(3 - String(line).length, 0))}|  ${
-//             lines[j]
-//           }`,
-//         )
-//         const lineLength = lines[j].length
-//         if (j === i) {
-//           // push underline
-//           const pad = Math.max(start - (count - lineLength) + 1, 0)
-//           const length = Math.max(
-//             1,
-//             end > count ? lineLength - pad : end - start,
-//           )
-//           res.push(`   |  ` + ' '.repeat(pad) + '^'.repeat(length))
-//         } else if (j > i) {
-//           if (end > count) {
-//             const length = Math.max(Math.min(end - count, lineLength), 1)
-//             res.push(`   |  ` + '^'.repeat(length))
-//           }
-//           count += lineLength + 1
-//         }
-//       }
-//       break
-//     }
-//   }
-//   return res.join('\n')
-// }
+export function generateCodeFrame(
+  source: string,
+  start: number | { line: number; column: number } = 0,
+  end?: number,
+): string {
+  start = posToNumber(source, start)
+  end = end || start
+  const lines = source.split(splitRE)
+  let count = 0
+  const res: string[] = []
+  for (let i = 0; i < lines.length; i++) {
+    count += lines[i].length + 1
+    if (count >= start) {
+      for (let j = i - range; j <= i + range || end > count; j++) {
+        if (j < 0 || j >= lines.length) continue
+        const line = j + 1
+        res.push(
+          `${line}${' '.repeat(Math.max(3 - String(line).length, 0))}|  ${
+            lines[j]
+          }`,
+        )
+        const lineLength = lines[j].length
+        if (j === i) {
+          // push underline
+          const pad = Math.max(start - (count - lineLength) + 1, 0)
+          const length = Math.max(
+            1,
+            end > count ? lineLength - pad : end - start,
+          )
+          res.push(`   |  ` + ' '.repeat(pad) + '^'.repeat(length))
+        } else if (j > i) {
+          if (end > count) {
+            const length = Math.max(Math.min(end - count, lineLength), 1)
+            res.push(`   |  ` + '^'.repeat(length))
+          }
+          count += lineLength + 1
+        }
+      }
+      break
+    }
+  }
+  return res.join('\n')
+}
 
 // export function isFileReadable(filename: string): boolean {
 //   if (!tryStatSync(filename)) {
@@ -558,129 +558,129 @@ export function tryStatSync(file: string): fs.Stats | undefined {
 //   }
 // }
 
-// const splitFirstDirRE = /(.+?)[\\/](.+)/
+const splitFirstDirRE = /(.+?)[\\/](.+)/
 
-// /**
-//  * Delete every file and subdirectory. **The given directory must exist.**
-//  * Pass an optional `skip` array to preserve files under the root directory.
-//  */
-// export function emptyDir(dir: string, skip?: string[]): void {
-//   const skipInDir: string[] = []
-//   let nested: Map<string, string[]> | null = null
-//   if (skip?.length) {
-//     for (const file of skip) {
-//       if (path.dirname(file) !== '.') {
-//         const matched = file.match(splitFirstDirRE)
-//         if (matched) {
-//           nested ??= new Map()
-//           const [, nestedDir, skipPath] = matched
-//           let nestedSkip = nested.get(nestedDir)
-//           if (!nestedSkip) {
-//             nestedSkip = []
-//             nested.set(nestedDir, nestedSkip)
-//           }
-//           if (!nestedSkip.includes(skipPath)) {
-//             nestedSkip.push(skipPath)
-//           }
-//         }
-//       } else {
-//         skipInDir.push(file)
-//       }
-//     }
-//   }
-//   for (const file of fs.readdirSync(dir)) {
-//     if (skipInDir.includes(file)) {
-//       continue
-//     }
-//     if (nested?.has(file)) {
-//       emptyDir(path.resolve(dir, file), nested.get(file))
-//     } else {
-//       fs.rmSync(path.resolve(dir, file), { recursive: true, force: true })
-//     }
-//   }
-// }
+/**
+ * Delete every file and subdirectory. **The given directory must exist.**
+ * Pass an optional `skip` array to preserve files under the root directory.
+ */
+export function emptyDir(dir: string, skip?: string[]): void {
+  const skipInDir: string[] = []
+  let nested: Map<string, string[]> | null = null
+  if (skip?.length) {
+    for (const file of skip) {
+      if (path.dirname(file) !== '.') {
+        const matched = file.match(splitFirstDirRE)
+        if (matched) {
+          nested ??= new Map()
+          const [, nestedDir, skipPath] = matched
+          let nestedSkip = nested.get(nestedDir)
+          if (!nestedSkip) {
+            nestedSkip = []
+            nested.set(nestedDir, nestedSkip)
+          }
+          if (!nestedSkip.includes(skipPath)) {
+            nestedSkip.push(skipPath)
+          }
+        }
+      } else {
+        skipInDir.push(file)
+      }
+    }
+  }
+  for (const file of fs.readdirSync(dir)) {
+    if (skipInDir.includes(file)) {
+      continue
+    }
+    if (nested?.has(file)) {
+      emptyDir(path.resolve(dir, file), nested.get(file))
+    } else {
+      fs.rmSync(path.resolve(dir, file), { recursive: true, force: true })
+    }
+  }
+}
 
-// export function copyDir(srcDir: string, destDir: string): void {
-//   fs.mkdirSync(destDir, { recursive: true })
-//   for (const file of fs.readdirSync(srcDir)) {
-//     const srcFile = path.resolve(srcDir, file)
-//     if (srcFile === destDir) {
-//       continue
-//     }
-//     const destFile = path.resolve(destDir, file)
-//     const stat = fs.statSync(srcFile)
-//     if (stat.isDirectory()) {
-//       copyDir(srcFile, destFile)
-//     } else {
-//       fs.copyFileSync(srcFile, destFile)
-//     }
-//   }
-// }
+export function copyDir(srcDir: string, destDir: string): void {
+  fs.mkdirSync(destDir, { recursive: true })
+  for (const file of fs.readdirSync(srcDir)) {
+    const srcFile = path.resolve(srcDir, file)
+    if (srcFile === destDir) {
+      continue
+    }
+    const destFile = path.resolve(destDir, file)
+    const stat = fs.statSync(srcFile)
+    if (stat.isDirectory()) {
+      copyDir(srcFile, destFile)
+    } else {
+      fs.copyFileSync(srcFile, destFile)
+    }
+  }
+}
 
-// // `fs.realpathSync.native` resolves differently in Windows network drive,
-// // causing file read errors. skip for now.
-// // https://github.com/nodejs/node/issues/37737
-// export let safeRealpathSync = isWindows
-//   ? windowsSafeRealPathSync
-//   : fs.realpathSync.native
+// `fs.realpathSync.native` resolves differently in Windows network drive,
+// causing file read errors. skip for now.
+// https://github.com/nodejs/node/issues/37737
+export let safeRealpathSync = isWindows
+  ? windowsSafeRealPathSync
+  : fs.realpathSync.native
 
-// // Based on https://github.com/larrybahr/windows-network-drive
-// // MIT License, Copyright (c) 2017 Larry Bahr
-// const windowsNetworkMap = new Map()
-// function windowsMappedRealpathSync(path: string) {
-//   const realPath = fs.realpathSync.native(path)
-//   if (realPath.startsWith('\\\\')) {
-//     for (const [network, volume] of windowsNetworkMap) {
-//       if (realPath.startsWith(network)) return realPath.replace(network, volume)
-//     }
-//   }
-//   return realPath
-// }
-// const parseNetUseRE = /^(\w+)? +(\w:) +([^ ]+)\s/
-// let firstSafeRealPathSyncRun = false
+// Based on https://github.com/larrybahr/windows-network-drive
+// MIT License, Copyright (c) 2017 Larry Bahr
+const windowsNetworkMap = new Map()
+function windowsMappedRealpathSync(path: string) {
+  const realPath = fs.realpathSync.native(path)
+  if (realPath.startsWith('\\\\')) {
+    for (const [network, volume] of windowsNetworkMap) {
+      if (realPath.startsWith(network)) return realPath.replace(network, volume)
+    }
+  }
+  return realPath
+}
+const parseNetUseRE = /^(\w+)? +(\w:) +([^ ]+)\s/
+let firstSafeRealPathSyncRun = false
 
-// function windowsSafeRealPathSync(path: string): string {
-//   if (!firstSafeRealPathSyncRun) {
-//     optimizeSafeRealPathSync()
-//     firstSafeRealPathSyncRun = true
-//   }
-//   return fs.realpathSync(path)
-// }
+function windowsSafeRealPathSync(path: string): string {
+  if (!firstSafeRealPathSyncRun) {
+    optimizeSafeRealPathSync()
+    firstSafeRealPathSyncRun = true
+  }
+  return fs.realpathSync(path)
+}
 
-// function optimizeSafeRealPathSync() {
-//   // Skip if using Node <18.10 due to MAX_PATH issue: https://github.com/vitejs/vite/issues/12931
-//   const nodeVersion = process.versions.node.split('.').map(Number)
-//   if (nodeVersion[0] < 18 || (nodeVersion[0] === 18 && nodeVersion[1] < 10)) {
-//     safeRealpathSync = fs.realpathSync
-//     return
-//   }
-//   // Check the availability `fs.realpathSync.native`
-//   // in Windows virtual and RAM disks that bypass the Volume Mount Manager, in programs such as imDisk
-//   // get the error EISDIR: illegal operation on a directory
-//   try {
-//     fs.realpathSync.native(path.resolve('./'))
-//   } catch (error) {
-//     if (error.message.includes('EISDIR: illegal operation on a directory')) {
-//       safeRealpathSync = fs.realpathSync
-//       return
-//     }
-//   }
-//   exec('net use', (error, stdout) => {
-//     if (error) return
-//     const lines = stdout.split('\n')
-//     // OK           Y:        \\NETWORKA\Foo         Microsoft Windows Network
-//     // OK           Z:        \\NETWORKA\Bar         Microsoft Windows Network
-//     for (const line of lines) {
-//       const m = line.match(parseNetUseRE)
-//       if (m) windowsNetworkMap.set(m[3], m[2])
-//     }
-//     if (windowsNetworkMap.size === 0) {
-//       safeRealpathSync = fs.realpathSync.native
-//     } else {
-//       safeRealpathSync = windowsMappedRealpathSync
-//     }
-//   })
-// }
+function optimizeSafeRealPathSync() {
+  // Skip if using Node <18.10 due to MAX_PATH issue: https://github.com/ditejs/dite/issues/12931
+  const nodeVersion = process.versions.node.split('.').map(Number)
+  if (nodeVersion[0] < 18 || (nodeVersion[0] === 18 && nodeVersion[1] < 10)) {
+    safeRealpathSync = fs.realpathSync
+    return
+  }
+  // Check the availability `fs.realpathSync.native`
+  // in Windows virtual and RAM disks that bypass the Volume Mount Manager, in programs such as imDisk
+  // get the error EISDIR: illegal operation on a directory
+  try {
+    fs.realpathSync.native(path.resolve('./'))
+  } catch (error) {
+    if (error.message.includes('EISDIR: illegal operation on a directory')) {
+      safeRealpathSync = fs.realpathSync
+      return
+    }
+  }
+  exec('net use', (error, stdout) => {
+    if (error) return
+    const lines = stdout.split('\n')
+    // OK           Y:        \\NETWORKA\Foo         Microsoft Windows Network
+    // OK           Z:        \\NETWORKA\Bar         Microsoft Windows Network
+    for (const line of lines) {
+      const m = line.match(parseNetUseRE)
+      if (m) windowsNetworkMap.set(m[3], m[2])
+    }
+    if (windowsNetworkMap.size === 0) {
+      safeRealpathSync = fs.realpathSync.native
+    } else {
+      safeRealpathSync = windowsMappedRealpathSync
+    }
+  })
+}
 
 // export function ensureWatchedFile(
 //   watcher: FSWatcher,
@@ -700,41 +700,41 @@ export function tryStatSync(file: string): fs.Stats | undefined {
 //   }
 // }
 
-// interface ImageCandidate {
-//   url: string
-//   descriptor: string
-// }
-// const escapedSpaceCharacters = /( |\\t|\\n|\\f|\\r)+/g
-// const imageSetUrlRE = /^(?:[\w\-]+\(.*?\)|'.*?'|".*?"|\S*)/
-// function joinSrcset(ret: ImageCandidate[]) {
-//   return ret.map(({ url, descriptor }) => `${url} ${descriptor}`).join(', ')
-// }
+interface ImageCandidate {
+  url: string
+  descriptor: string
+}
+const escapedSpaceCharacters = /( |\\t|\\n|\\f|\\r)+/g
+const imageSetUrlRE = /^(?:[\w\-]+\(.*?\)|'.*?'|".*?"|\S*)/
+function joinSrcset(ret: ImageCandidate[]) {
+  return ret.map(({ url, descriptor }) => `${url} ${descriptor}`).join(', ')
+}
 
-// function splitSrcSetDescriptor(srcs: string): ImageCandidate[] {
-//   return splitSrcSet(srcs)
-//     .map((s) => {
-//       const src = s.replace(escapedSpaceCharacters, ' ').trim()
-//       const url = imageSetUrlRE.exec(src)?.[0] ?? ''
+function splitSrcSetDescriptor(srcs: string): ImageCandidate[] {
+  return splitSrcSet(srcs)
+    .map((s) => {
+      const src = s.replace(escapedSpaceCharacters, ' ').trim()
+      const url = imageSetUrlRE.exec(src)?.[0] ?? ''
 
-//       return {
-//         url,
-//         descriptor: src.slice(url.length).trim(),
-//       }
-//     })
-//     .filter(({ url }) => !!url)
-// }
+      return {
+        url,
+        descriptor: src.slice(url.length).trim(),
+      }
+    })
+    .filter(({ url }) => !!url)
+}
 
-// export function processSrcSet(
-//   srcs: string,
-//   replacer: (arg: ImageCandidate) => Promise<string>,
-// ): Promise<string> {
-//   return Promise.all(
-//     splitSrcSetDescriptor(srcs).map(async ({ url, descriptor }) => ({
-//       url: await replacer({ url, descriptor }),
-//       descriptor,
-//     })),
-//   ).then(joinSrcset)
-// }
+export function processSrcSet(
+  srcs: string,
+  replacer: (arg: ImageCandidate) => Promise<string>,
+): Promise<string> {
+  return Promise.all(
+    splitSrcSetDescriptor(srcs).map(async ({ url, descriptor }) => ({
+      url: await replacer({ url, descriptor }),
+      descriptor,
+    })),
+  ).then(joinSrcset)
+}
 
 // export function processSrcSetSync(
 //   srcs: string,
@@ -748,36 +748,36 @@ export function tryStatSync(file: string): fs.Stats | undefined {
 //   )
 // }
 
-// const cleanSrcSetRE =
-//   /(?:url|image|gradient|cross-fade)\([^)]*\)|"([^"]|(?<=\\)")*"|'([^']|(?<=\\)')*'/g
-// function splitSrcSet(srcs: string) {
-//   const parts: string[] = []
-//   // There could be a ',' inside of url(data:...), linear-gradient(...) or "data:..."
-//   const cleanedSrcs = srcs.replace(cleanSrcSetRE, blankReplacer)
-//   let startIndex = 0
-//   let splitIndex: number
-//   do {
-//     splitIndex = cleanedSrcs.indexOf(',', startIndex)
-//     parts.push(
-//       srcs.slice(startIndex, splitIndex !== -1 ? splitIndex : undefined),
-//     )
-//     startIndex = splitIndex + 1
-//   } while (splitIndex !== -1)
-//   return parts
-// }
+const cleanSrcSetRE =
+  /(?:url|image|gradient|cross-fade)\([^)]*\)|"([^"]|(?<=\\)")*"|'([^']|(?<=\\)')*'/g
+function splitSrcSet(srcs: string) {
+  const parts: string[] = []
+  // There could be a ',' inside of url(data:...), linear-gradient(...) or "data:..."
+  const cleanedSrcs = srcs.replace(cleanSrcSetRE, blankReplacer)
+  let startIndex = 0
+  let splitIndex: number
+  do {
+    splitIndex = cleanedSrcs.indexOf(',', startIndex)
+    parts.push(
+      srcs.slice(startIndex, splitIndex !== -1 ? splitIndex : undefined),
+    )
+    startIndex = splitIndex + 1
+  } while (splitIndex !== -1)
+  return parts
+}
 
-// const windowsDriveRE = /^[A-Z]:/
-// const replaceWindowsDriveRE = /^([A-Z]):\//
-// const linuxAbsolutePathRE = /^\/[^/]/
-// function escapeToLinuxLikePath(path: string) {
-//   if (windowsDriveRE.test(path)) {
-//     return path.replace(replaceWindowsDriveRE, '/windows/$1/')
-//   }
-//   if (linuxAbsolutePathRE.test(path)) {
-//     return `/linux${path}`
-//   }
-//   return path
-// }
+const windowsDriveRE = /^[A-Z]:/
+const replaceWindowsDriveRE = /^([A-Z]):\//
+const linuxAbsolutePathRE = /^\/[^/]/
+function escapeToLinuxLikePath(path: string) {
+  if (windowsDriveRE.test(path)) {
+    return path.replace(replaceWindowsDriveRE, '/windows/$1/')
+  }
+  if (linuxAbsolutePathRE.test(path)) {
+    return `/linux${path}`
+  }
+  return path
+}
 
 // const revertWindowsDriveRE = /^\/windows\/([A-Z])\//
 // function unescapeToLinuxLikePath(path: string) {
@@ -797,60 +797,60 @@ export function tryStatSync(file: string): fs.Stats | undefined {
 //   mappings: '',
 //   version: 3,
 // }
-// export function combineSourcemaps(
-//   filename: string,
-//   sourcemapList: Array<DecodedSourceMap | RawSourceMap>,
-// ): RawSourceMap {
-//   if (
-//     sourcemapList.length === 0 ||
-//     sourcemapList.every((m) => m.sources.length === 0)
-//   ) {
-//     return { ...nullSourceMap }
-//   }
+export function combineSourcemaps(
+  filename: string,
+  sourcemapList: Array<DecodedSourceMap | RawSourceMap>,
+): RawSourceMap {
+  //   if (
+  //     sourcemapList.length === 0 ||
+  //     sourcemapList.every((m) => m.sources.length === 0)
+  //   ) {
+  //     return { ...nullSourceMap }
+  //   }
 
-//   // hack for parse broken with normalized absolute paths on windows (C:/path/to/something).
-//   // escape them to linux like paths
-//   // also avoid mutation here to prevent breaking plugin's using cache to generate sourcemaps like vue (see #7442)
-//   sourcemapList = sourcemapList.map((sourcemap) => {
-//     const newSourcemaps = { ...sourcemap }
-//     newSourcemaps.sources = sourcemap.sources.map((source) =>
-//       source ? escapeToLinuxLikePath(source) : null,
-//     )
-//     if (sourcemap.sourceRoot) {
-//       newSourcemaps.sourceRoot = escapeToLinuxLikePath(sourcemap.sourceRoot)
-//     }
-//     return newSourcemaps
-//   })
-//   const escapedFilename = escapeToLinuxLikePath(filename)
+  //   // hack for parse broken with normalized absolute paths on windows (C:/path/to/something).
+  //   // escape them to linux like paths
+  //   // also avoid mutation here to prevent breaking plugin's using cache to generate sourcemaps like vue (see #7442)
+  //   sourcemapList = sourcemapList.map((sourcemap) => {
+  //     const newSourcemaps = { ...sourcemap }
+  //     newSourcemaps.sources = sourcemap.sources.map((source) =>
+  //       source ? escapeToLinuxLikePath(source) : null,
+  //     )
+  //     if (sourcemap.sourceRoot) {
+  //       newSourcemaps.sourceRoot = escapeToLinuxLikePath(sourcemap.sourceRoot)
+  //     }
+  //     return newSourcemaps
+  //   })
+  const escapedFilename = escapeToLinuxLikePath(filename)
 
-//   // We don't declare type here so we can convert/fake/map as RawSourceMap
-//   let map //: SourceMap
-//   let mapIndex = 1
-//   const useArrayInterface =
-//     sourcemapList.slice(0, -1).find((m) => m.sources.length !== 1) === undefined
-//   if (useArrayInterface) {
-//     map = remapping(sourcemapList, () => null)
-//   } else {
-//     map = remapping(sourcemapList[0], function loader(sourcefile) {
-//       if (sourcefile === escapedFilename && sourcemapList[mapIndex]) {
-//         return sourcemapList[mapIndex++]
-//       } else {
-//         return null
-//       }
-//     })
-//   }
-//   if (!map.file) {
-//     delete map.file
-//   }
+  // We don't declare type here so we can convert/fake/map as RawSourceMap
+  let map //: SourceMap
+  let mapIndex = 1
+  const useArrayInterface =
+    sourcemapList.slice(0, -1).find((m) => m.sources.length !== 1) === undefined
+  if (useArrayInterface) {
+    map = remapping(sourcemapList, () => null)
+  } else {
+    map = remapping(sourcemapList[0], function loader(sourcefile) {
+      if (sourcefile === escapedFilename && sourcemapList[mapIndex]) {
+        return sourcemapList[mapIndex++]
+      } else {
+        return null
+      }
+    })
+  }
+  if (!map.file) {
+    delete map.file
+  }
 
-//   // unescape the previous hack
-//   map.sources = map.sources.map((source) =>
-//     source ? unescapeToLinuxLikePath(source) : source,
-//   )
-//   map.file = filename
+  // // unescape the previous hack
+  // map.sources = map.sources.map((source) =>
+  //   source ? unescapeToLinuxLikePath(source) : source,
+  // )
+  // map.file = filename
 
-//   return map as RawSourceMap
-// }
+  return map as RawSourceMap
+}
 
 // export function unique<T>(arr: T[]): T[] {
 //   return Array.from(new Set(arr))
@@ -877,8 +877,8 @@ export function tryStatSync(file: string): fs.Stats | undefined {
 // }
 
 // export function diffDnsOrderChange(
-//   oldUrls: ViteDevServer['resolvedUrls'],
-//   newUrls: ViteDevServer['resolvedUrls'],
+//   oldUrls: DiteDevServer['resolvedUrls'],
+//   newUrls: DiteDevServer['resolvedUrls'],
 // ): boolean {
 //   return !(
 //     oldUrls === newUrls ||
@@ -1001,13 +1001,13 @@ export function arraify<T>(target: T | T[]): T[] {
 //   return Object.fromEntries(new URLSearchParams(search))
 // }
 
-// export const blankReplacer = (match: string): string => ' '.repeat(match.length)
+export const blankReplacer = (match: string): string => ' '.repeat(match.length)
 
-// export function getHash(text: Buffer | string, length = 8): string {
-//   const h = createHash('sha256').update(text).digest('hex').substring(0, length)
-//   if (length <= 64) return h
-//   return h.padEnd(length, '_')
-// }
+export function getHash(text: Buffer | string, length = 8): string {
+  const h = createHash('sha256').update(text).digest('hex').substring(0, length)
+  if (length <= 64) return h
+  return h.padEnd(length, '_')
+}
 
 // const _dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -1038,89 +1038,89 @@ export function arraify<T>(target: T | T[]): T[] {
 //   return raw.replace(multilineCommentsRE, '').replace(singlelineCommentsRE, '')
 // }
 
-// function backwardCompatibleWorkerPlugins(plugins: any) {
-//   if (Array.isArray(plugins)) {
-//     return plugins
-//   }
-//   if (typeof plugins === 'function') {
-//     return plugins()
-//   }
-//   return []
-// }
+function backwardCompatibleWorkerPlugins(plugins: any) {
+  if (Array.isArray(plugins)) {
+    return plugins
+  }
+  if (typeof plugins === 'function') {
+    return plugins()
+  }
+  return []
+}
 
-// function mergeConfigRecursively(
-//   defaults: Record<string, any>,
-//   overrides: Record<string, any>,
-//   rootPath: string,
-// ) {
-//   const merged: Record<string, any> = { ...defaults }
-//   for (const key in overrides) {
-//     const value = overrides[key]
-//     if (value == null) {
-//       continue
-//     }
+function mergeConfigRecursively(
+  defaults: Record<string, any>,
+  overrides: Record<string, any>,
+  rootPath: string,
+) {
+  const merged: Record<string, any> = { ...defaults }
+  for (const key in overrides) {
+    const value = overrides[key]
+    if (value == null) {
+      continue
+    }
 
-//     const existing = merged[key]
+    const existing = merged[key]
 
-//     if (existing == null) {
-//       merged[key] = value
-//       continue
-//     }
+    if (existing == null) {
+      merged[key] = value
+      continue
+    }
 
-//     // fields that require special handling
-//     if (key === 'alias' && (rootPath === 'resolve' || rootPath === '')) {
-//       merged[key] = mergeAlias(existing, value)
-//       continue
-//     } else if (key === 'assetsInclude' && rootPath === '') {
-//       merged[key] = [].concat(existing, value)
-//       continue
-//     } else if (
-//       key === 'noExternal' &&
-//       rootPath === 'ssr' &&
-//       (existing === true || value === true)
-//     ) {
-//       merged[key] = true
-//       continue
-//     } else if (key === 'plugins' && rootPath === 'worker') {
-//       merged[key] = () => [
-//         ...backwardCompatibleWorkerPlugins(existing),
-//         ...backwardCompatibleWorkerPlugins(value),
-//       ]
-//       continue
-//     }
+    // fields that require special handling
+    if (key === 'alias' && (rootPath === 'resolve' || rootPath === '')) {
+      merged[key] = mergeAlias(existing, value)
+      continue
+    } else if (key === 'assetsInclude' && rootPath === '') {
+      merged[key] = [].concat(existing, value)
+      continue
+    } else if (
+      key === 'noExternal' &&
+      rootPath === 'ssr' &&
+      (existing === true || value === true)
+    ) {
+      merged[key] = true
+      continue
+    } else if (key === 'plugins' && rootPath === 'worker') {
+      merged[key] = () => [
+        ...backwardCompatibleWorkerPlugins(existing),
+        ...backwardCompatibleWorkerPlugins(value),
+      ]
+      continue
+    }
 
-//     if (Array.isArray(existing) || Array.isArray(value)) {
-//       merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])]
-//       continue
-//     }
-//     if (isObject(existing) && isObject(value)) {
-//       merged[key] = mergeConfigRecursively(
-//         existing,
-//         value,
-//         rootPath ? `${rootPath}.${key}` : key,
-//       )
-//       continue
-//     }
+    if (Array.isArray(existing) || Array.isArray(value)) {
+      merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])]
+      continue
+    }
+    if (isObject(existing) && isObject(value)) {
+      merged[key] = mergeConfigRecursively(
+        existing,
+        value,
+        rootPath ? `${rootPath}.${key}` : key,
+      )
+      continue
+    }
 
-//     merged[key] = value
-//   }
-//   return merged
-// }
+    merged[key] = value
+  }
+  return merged
+}
 
-// export function mergeConfig<
-//   D extends Record<string, any>,
-//   O extends Record<string, any>,
-// >(
-//   defaults: D extends Function ? never : D,
-//   overrides: O extends Function ? never : O,
-//   isRoot = true,
-// ): Record<string, any> {
-//   if (typeof defaults === 'function' || typeof overrides === 'function') {
-//     throw new Error(`Cannot merge config in form of callback`)
-//   }
+export function mergeConfig<
+  D extends Record<string, any>,
+  O extends Record<string, any>,
+>(
+  defaults: D extends Function ? never : D,
+  overrides: O extends Function ? never : O,
+  isRoot = true,
+): Record<string, any> {
+  if (typeof defaults === 'function' || typeof overrides === 'function') {
+    throw new Error(`Cannot merge config in form of callback`)
+  }
 
-//   return mergeConfigRecursively(defaults, overrides, isRoot ? '' : '.')
-// }
+  return mergeConfigRecursively(defaults, overrides, isRoot ? '' : '.')
+}
 
 export function mergeAlias(
   a?: AliasOptions,
@@ -1147,7 +1147,7 @@ export function normalizeAlias(o: AliasOptions = []): Alias[] {
       )
 }
 
-// https://github.com/vitejs/vite/issues/1363
+// https://github.com/ditejs/dite/issues/1363
 // work around https://github.com/rollup/plugins/issues/759
 function normalizeSingleAlias({
   find,
@@ -1191,12 +1191,12 @@ function normalizeSingleAlias({
 //   }
 // }
 
-// export async function asyncFlatten<T>(arr: T[]): Promise<T[]> {
-//   do {
-//     arr = (await Promise.all(arr)).flat(Infinity) as any
-//   } while (arr.some((v: any) => v?.then))
-//   return arr
-// }
+export async function asyncFlatten<T>(arr: T[]): Promise<T[]> {
+  do {
+    arr = (await Promise.all(arr)).flat(Infinity) as any
+  } while (arr.some((v: any) => v?.then))
+  return arr
+}
 
 // // strip UTF-8 BOM
 // export function stripBomTag(content: string): string {
@@ -1207,16 +1207,16 @@ function normalizeSingleAlias({
 //   return content
 // }
 
-// const windowsDrivePathPrefixRE = /^[A-Za-z]:[/\\]/
+const windowsDrivePathPrefixRE = /^[A-Za-z]:[/\\]/
 
-// /**
-//  * path.isAbsolute also returns true for drive relative paths on windows (e.g. /something)
-//  * this function returns false for them but true for absolute paths (e.g. C:/something)
-//  */
-// export const isNonDriveRelativeAbsolutePath = (p: string): boolean => {
-//   if (!isWindows) return p[0] === '/'
-//   return windowsDrivePathPrefixRE.test(p)
-// }
+/**
+ * path.isAbsolute also returns true for drive relative paths on windows (e.g. /something)
+ * this function returns false for them but true for absolute paths (e.g. C:/something)
+ */
+export const isNonDriveRelativeAbsolutePath = (p: string): boolean => {
+  if (!isWindows) return p[0] === '/'
+  return windowsDrivePathPrefixRE.test(p)
+}
 
 // /**
 //  * Determine if a file is being requested with the correct case, to ensure
@@ -1245,22 +1245,22 @@ function normalizeSingleAlias({
 //   return false
 // }
 
-// export function joinUrlSegments(a: string, b: string): string {
-//   if (!a || !b) {
-//     return a || b || ''
-//   }
-//   if (a[a.length - 1] === '/') {
-//     a = a.substring(0, a.length - 1)
-//   }
-//   if (b[0] !== '/') {
-//     b = '/' + b
-//   }
-//   return a + b
-// }
+export function joinUrlSegments(a: string, b: string): string {
+  if (!a || !b) {
+    return a || b || ''
+  }
+  if (a[a.length - 1] === '/') {
+    a = a.substring(0, a.length - 1)
+  }
+  if (b[0] !== '/') {
+    b = '/' + b
+  }
+  return a + b
+}
 
-// export function removeLeadingSlash(str: string): string {
-//   return str[0] === '/' ? str.slice(1) : str
-// }
+export function removeLeadingSlash(str: string): string {
+  return str[0] === '/' ? str.slice(1) : str
+}
 
 // export function stripBase(path: string, base: string): string {
 //   if (path === base) {
@@ -1325,7 +1325,7 @@ function normalizeSingleAlias({
 // }
 
 // export function isDevServer(
-//   server: ViteDevServer | PreviewServer,
-// ): server is ViteDevServer {
+//   server: DiteDevServer | PreviewServer,
+// ): server is DiteDevServer {
 //   return 'pluginContainer' in server
 // }

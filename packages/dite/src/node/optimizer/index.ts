@@ -756,11 +756,11 @@ export interface DepOptimizationMetadata {
 
 //   // esbuild automatically replaces process.env.NODE_ENV for platform 'browser'
 //   // In lib mode, we need to keep process.env.NODE_ENV untouched, so to at build
-//   // time we replace it by __vite_process_env_NODE_ENV. This placeholder will be
+//   // time we replace it by __dite_process_env_NODE_ENV. This placeholder will be
 //   // later replaced by the define plugin
 //   const define = {
 //     'process.env.NODE_ENV': isBuild
-//       ? '__vite_process_env_NODE_ENV'
+//       ? '__dite_process_env_NODE_ENV'
 //       : JSON.stringify(process.env.NODE_ENV || config.mode),
 //   }
 
@@ -872,7 +872,7 @@ export interface DepOptimizationMetadata {
 //         const entry = await resolve(id)
 //         if (entry) {
 //           if (isOptimizable(entry, optimizeDeps)) {
-//             if (!entry.endsWith('?__vite_skip_optimization')) {
+//             if (!entry.endsWith('?__dite_skip_optimization')) {
 //               deps[normalizedId] = entry
 //             }
 //           } else {
@@ -1256,21 +1256,21 @@ export interface DepOptimizationMetadata {
 //   return getHash(hash + JSON.stringify(deps) + timestamp)
 // }
 
-// export function optimizedDepInfoFromId(
-//   metadata: DepOptimizationMetadata,
-//   id: string,
-// ): OptimizedDepInfo | undefined {
-//   return (
-//     metadata.optimized[id] || metadata.discovered[id] || metadata.chunks[id]
-//   )
-// }
+export function optimizedDepInfoFromId(
+  metadata: DepOptimizationMetadata,
+  id: string,
+): OptimizedDepInfo | undefined {
+  return (
+    metadata.optimized[id] || metadata.discovered[id] || metadata.chunks[id]
+  )
+}
 
-// export function optimizedDepInfoFromFile(
-//   metadata: DepOptimizationMetadata,
-//   file: string,
-// ): OptimizedDepInfo | undefined {
-//   return metadata.depInfoList.find((depInfo) => depInfo.file === file)
-// }
+export function optimizedDepInfoFromFile(
+  metadata: DepOptimizationMetadata,
+  file: string,
+): OptimizedDepInfo | undefined {
+  return metadata.depInfoList.find((depInfo) => depInfo.file === file)
+}
 
 // function findOptimizedDepInfoInRecord(
 //   dependenciesInfo: Record<string, OptimizedDepInfo>,

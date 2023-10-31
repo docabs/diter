@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import colors from 'picocolors'
+import { rollup } from 'rollup'
 import type {
   ExternalOption,
   InputOption,
@@ -24,17 +25,17 @@ import type { TransformOptions } from 'esbuild'
 import type { InlineConfig, ResolvedConfig } from './config'
 import { isDepsOptimizerEnabled, resolveConfig } from './config'
 // import { buildReporterPlugin } from './plugins/reporter'
-// import { buildEsbuildPlugin } from './plugins/esbuild'
+import { buildEsbuildPlugin } from './plugins/esbuild'
 import { type TerserOptions, terserPlugin } from './plugins/terser'
-// import {
-//   asyncFlatten,
-//   copyDir,
-//   emptyDir,
-//   joinUrlSegments,
-//   normalizePath,
-//   requireResolveFromRootWithFallback,
-//   withTrailingSlash,
-// } from './utils'
+import {
+  asyncFlatten,
+  copyDir,
+  emptyDir,
+  joinUrlSegments,
+  normalizePath,
+  // requireResolveFromRootWithFallback,
+  withTrailingSlash,
+} from './utils'
 // import { manifestPlugin } from './plugins/manifest'
 import type { Logger } from './logger'
 // import { dataURIPlugin } from './plugins/dataUri'
@@ -42,12 +43,12 @@ import type { Logger } from './logger'
 // import { ssrManifestPlugin } from './ssr/ssrManifestPlugin'
 // import { initDepsOptimizer } from './optimizer'
 // import { loadFallbackPlugin } from './plugins/loadFallback'
-// import { findNearestPackageData } from './packages'
+import { findNearestPackageData } from './packages'
 import type { PackageCache } from './packages'
-// import { ESBUILD_MODULES_TARGET, VERSION } from './constants'
+import { ESBUILD_MODULES_TARGET, VERSION } from './constants'
 // import { resolveChokidarOptions } from './watch'
 // import { completeSystemWrapPlugin } from './plugins/completeSystemWrap'
-// import { mergeConfig } from './publicUtils'
+import { mergeConfig } from './publicUtils'
 // import { webWorkerPostPlugin } from './plugins/worker'
 
 export interface BuildOptions {
@@ -315,62 +316,62 @@ export function resolveBuildOptions(
   //     }
   //   }
 
-  //   const modulePreload = raw?.modulePreload
-  //   const defaultModulePreload = {
-  //     polyfill: true,
-  //   }
+  const modulePreload = raw?.modulePreload
+  const defaultModulePreload = {
+    polyfill: true,
+  }
 
-  //   const defaultBuildOptions: BuildOptions = {
-  //     outDir: 'dist',
-  //     assetsDir: 'assets',
-  //     assetsInlineLimit: 4096,
-  //     cssCodeSplit: !raw?.lib,
-  //     sourcemap: false,
-  //     rollupOptions: {},
-  //     minify: raw?.ssr ? false : 'esbuild',
-  //     terserOptions: {},
-  //     write: true,
-  //     emptyOutDir: null,
-  //     copyPublicDir: true,
-  //     manifest: false,
-  //     lib: false,
-  //     ssr: false,
-  //     ssrManifest: false,
-  //     ssrEmitAssets: false,
-  //     reportCompressedSize: true,
-  //     chunkSizeWarningLimit: 500,
-  //     watch: null,
-  //   }
+  const defaultBuildOptions: BuildOptions = {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    assetsInlineLimit: 4096,
+    cssCodeSplit: !raw?.lib,
+    sourcemap: false,
+    rollupOptions: {},
+    minify: raw?.ssr ? false : 'esbuild',
+    terserOptions: {},
+    write: true,
+    emptyOutDir: null,
+    copyPublicDir: true,
+    manifest: false,
+    lib: false,
+    ssr: false,
+    ssrManifest: false,
+    ssrEmitAssets: false,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 500,
+    watch: null,
+  }
 
-  //   const userBuildOptions = raw
-  //     ? mergeConfig(defaultBuildOptions, raw)
-  //     : defaultBuildOptions
+  const userBuildOptions = raw
+    ? mergeConfig(defaultBuildOptions, raw)
+    : defaultBuildOptions
 
   // @ts-expect-error Fallback options instead of merging
   const resolved: ResolvedBuildOptions = {
-    //     target: 'modules',
-    //     cssTarget: false,
-    //     ...userBuildOptions,
-    //     commonjsOptions: {
-    //       include: [/node_modules/],
-    //       extensions: ['.js', '.cjs'],
-    //       ...userBuildOptions.commonjsOptions,
-    //     },
-    //     dynamicImportVarsOptions: {
-    //       warnOnError: true,
-    //       exclude: [/node_modules/],
-    //       ...userBuildOptions.dynamicImportVarsOptions,
-    //     },
-    //     // Resolve to false | object
-    //     modulePreload:
-    //       modulePreload === false
-    //         ? false
-    //         : typeof modulePreload === 'object'
-    //         ? {
-    //             ...defaultModulePreload,
-    //             ...modulePreload,
-    //           }
-    //         : defaultModulePreload,
+    target: 'modules',
+    cssTarget: false,
+    ...userBuildOptions,
+    commonjsOptions: {
+      include: [/node_modules/],
+      extensions: ['.js', '.cjs'],
+      ...userBuildOptions.commonjsOptions,
+    },
+    dynamicImportVarsOptions: {
+      warnOnError: true,
+      exclude: [/node_modules/],
+      ...userBuildOptions.dynamicImportVarsOptions,
+    },
+    // Resolve to false | object
+    modulePreload:
+      modulePreload === false
+        ? false
+        : typeof modulePreload === 'object'
+        ? {
+            ...defaultModulePreload,
+            ...modulePreload,
+          }
+        : defaultModulePreload,
   }
 
   //   // handle special build targets
@@ -411,45 +412,45 @@ export function resolveBuildOptions(
   return resolved
 }
 
-// export async function resolveBuildPlugins(config: ResolvedConfig): Promise<{
-//   pre: Plugin[]
-//   post: Plugin[]
-// }> {
-//   const options = config.build
-//   const { commonjsOptions } = options
-//   const usePluginCommonjs =
-//     !Array.isArray(commonjsOptions?.include) ||
-//     commonjsOptions?.include.length !== 0
-//   const rollupOptionsPlugins = options.rollupOptions.plugins
-//   return {
-//     pre: [
-//       completeSystemWrapPlugin(),
-//       ...(usePluginCommonjs ? [commonjsPlugin(options.commonjsOptions)] : []),
-//       dataURIPlugin(),
-//       ...((
-//         await asyncFlatten(
-//           Array.isArray(rollupOptionsPlugins)
-//             ? rollupOptionsPlugins
-//             : [rollupOptionsPlugins],
-//         )
-//       ).filter(Boolean) as Plugin[]),
-//       ...(config.isWorker ? [webWorkerPostPlugin()] : []),
-//     ],
-//     post: [
-//       buildImportAnalysisPlugin(config),
-//       ...(config.esbuild !== false ? [buildEsbuildPlugin(config)] : []),
-//       ...(options.minify ? [terserPlugin(config)] : []),
-//       ...(!config.isWorker
-//         ? [
-//             ...(options.manifest ? [manifestPlugin(config)] : []),
-//             ...(options.ssrManifest ? [ssrManifestPlugin(config)] : []),
-//             buildReporterPlugin(config),
-//           ]
-//         : []),
-//       loadFallbackPlugin(),
-//     ],
-//   }
-// }
+export async function resolveBuildPlugins(config: ResolvedConfig): Promise<{
+  pre: Plugin[]
+  post: Plugin[]
+}> {
+  const options = config.build
+  const { commonjsOptions } = options
+  const usePluginCommonjs =
+    !Array.isArray(commonjsOptions?.include) ||
+    commonjsOptions?.include.length !== 0
+  const rollupOptionsPlugins = options.rollupOptions.plugins
+  return {
+    pre: [
+      // completeSystemWrapPlugin(),
+      ...(usePluginCommonjs ? [commonjsPlugin(options.commonjsOptions)] : []),
+      // dataURIPlugin(),
+      ...((
+        await asyncFlatten(
+          Array.isArray(rollupOptionsPlugins)
+            ? rollupOptionsPlugins
+            : [rollupOptionsPlugins],
+        )
+      ).filter(Boolean) as Plugin[]),
+      // ...(config.isWorker ? [webWorkerPostPlugin()] : []),
+    ],
+    post: [
+      // buildImportAnalysisPlugin(config),
+      ...(config.esbuild !== false ? [buildEsbuildPlugin(config)] : []),
+      ...(options.minify ? [terserPlugin(config)] : []),
+      // ...(!config.isWorker
+      //   ? [
+      //       ...(options.manifest ? [manifestPlugin(config)] : []),
+      //       ...(options.ssrManifest ? [ssrManifestPlugin(config)] : []),
+      //       buildReporterPlugin(config),
+      //     ]
+      //   : []),
+      // loadFallbackPlugin(),
+    ],
+  }
+}
 
 /**
  * Bundles the app for production.
@@ -465,60 +466,60 @@ export async function build(
     'production',
   )
   const options = config.build
-  //   const ssr = !!options.ssr
+  const ssr = !!options.ssr
   const libOptions = options.lib
-  //   config.logger.info(
-  //     colors.cyan(
-  //       `dite v${VERSION} ${colors.green(
-  //         `building ${ssr ? `SSR bundle ` : ``}for ${config.mode}...`,
-  //       )}`,
-  //     ),
-  //   )
-  //   const resolve = (p: string) => path.resolve(config.root, p)
-  //   const input = libOptions
-  //     ? options.rollupOptions?.input ||
-  //       (typeof libOptions.entry === 'string'
-  //         ? resolve(libOptions.entry)
-  //         : Array.isArray(libOptions.entry)
-  //         ? libOptions.entry.map(resolve)
-  //         : Object.fromEntries(
-  //             Object.entries(libOptions.entry).map(([alias, file]) => [
-  //               alias,
-  //               resolve(file),
-  //             ]),
-  //           ))
-  //     : typeof options.ssr === 'string'
-  //     ? resolve(options.ssr)
-  //     : options.rollupOptions?.input || resolve('index.html')
-  //   if (ssr && typeof input === 'string' && input.endsWith('.html')) {
-  //     throw new Error(
-  //       `rollupOptions.input should not be an html file when building for SSR. ` +
-  //         `Please specify a dedicated SSR entry.`,
-  //     )
-  //   }
-  //   const outDir = resolve(options.outDir)
-  //   // inject ssr arg to plugin load/transform hooks
-  //   const plugins = (
-  //     ssr ? config.plugins.map((p) => injectSsrFlagToHooks(p)) : config.plugins
-  //   ) as Plugin[]
-  //   if (isDepsOptimizerEnabled(config, ssr)) {
-  //     await initDepsOptimizer(config)
-  //   }
-  //   const rollupOptions: RollupOptions = {
-  //     preserveEntrySignatures: ssr
-  //       ? 'allow-extension'
-  //       : libOptions
-  //       ? 'strict'
-  //       : false,
-  //     cache: config.build.watch ? undefined : false,
-  //     ...options.rollupOptions,
-  //     input,
-  //     plugins,
-  //     external: options.rollupOptions?.external,
-  //     onwarn(warning, warn) {
-  //       onRollupWarning(warning, warn, config)
-  //     },
-  //   }
+  config.logger.info(
+    colors.cyan(
+      `dite v${VERSION} ${colors.green(
+        `building ${ssr ? `SSR bundle ` : ``}for ${config.mode}...`,
+      )}`,
+    ),
+  )
+  const resolve = (p: string) => path.resolve(config.root, p)
+  const input = libOptions
+    ? options.rollupOptions?.input ||
+      (typeof libOptions.entry === 'string'
+        ? resolve(libOptions.entry)
+        : Array.isArray(libOptions.entry)
+        ? libOptions.entry.map(resolve)
+        : Object.fromEntries(
+            Object.entries(libOptions.entry).map(([alias, file]) => [
+              alias,
+              resolve(file),
+            ]),
+          ))
+    : typeof options.ssr === 'string'
+    ? resolve(options.ssr)
+    : options.rollupOptions?.input || resolve('index.html')
+  if (ssr && typeof input === 'string' && input.endsWith('.html')) {
+    throw new Error(
+      `rollupOptions.input should not be an html file when building for SSR. ` +
+        `Please specify a dedicated SSR entry.`,
+    )
+  }
+  const outDir = resolve(options.outDir)
+  // inject ssr arg to plugin load/transform hooks
+  const plugins = (
+    ssr ? config.plugins.map((p) => injectSsrFlagToHooks(p)) : config.plugins
+  ) as Plugin[]
+  if (isDepsOptimizerEnabled(config, ssr)) {
+    //     await initDepsOptimizer(config)
+  }
+  const rollupOptions: RollupOptions = {
+    preserveEntrySignatures: ssr
+      ? 'allow-extension'
+      : libOptions
+      ? 'strict'
+      : false,
+    cache: config.build.watch ? undefined : false,
+    ...options.rollupOptions,
+    input,
+    plugins,
+    external: options.rollupOptions?.external,
+    onwarn(warning, warn) {
+      onRollupWarning(warning, warn, config)
+    },
+  }
   const outputBuildError = (e: RollupError) => {
     let msg = colors.red((e.plugin ? `[${e.plugin}] ` : '') + e.message)
     if (e.id) {
@@ -534,61 +535,61 @@ export async function build(
   let bundle: RollupBuild | undefined
   try {
     const buildOutputOptions = (output: OutputOptions = {}): OutputOptions => {
-      //       // @ts-expect-error See https://github.com/vitejs/dite/issues/5812#issuecomment-984345618
-      //       if (output.output) {
-      //         config.logger.warn(
-      //           `You've set "rollupOptions.output.output" in your config. ` +
-      //             `This is deprecated and will override all Dite.js default output options. ` +
-      //             `Please use "rollupOptions.output" instead.`,
-      //         )
-      //       }
-      //       const ssrNodeBuild = ssr && config.ssr.target === 'node'
-      //       const ssrWorkerBuild = ssr && config.ssr.target === 'webworker'
-      //       const format = output.format || 'es'
-      //       const jsExt =
-      //         ssrNodeBuild || libOptions
-      //           ? resolveOutputJsExtension(
-      //               format,
-      //               findNearestPackageData(config.root, config.packageCache)?.data
-      //                 .type,
-      //             )
-      //           : 'js'
+      // @ts-expect-error See https://github.com/ditejs/dite/issues/5812#issuecomment-984345618
+      if (output.output) {
+        config.logger.warn(
+          `You've set "rollupOptions.output.output" in your config. ` +
+            `This is deprecated and will override all Dite.js default output options. ` +
+            `Please use "rollupOptions.output" instead.`,
+        )
+      }
+      const ssrNodeBuild = ssr && config.ssr.target === 'node'
+      const ssrWorkerBuild = ssr && config.ssr.target === 'webworker'
+      const format = output.format || 'es'
+      const jsExt =
+        ssrNodeBuild || libOptions
+          ? resolveOutputJsExtension(
+              format,
+              findNearestPackageData(config.root, config.packageCache)?.data
+                .type,
+            )
+          : 'js'
       return {
-        //         dir: outDir,
-        //         // Default format is 'es' for regular and for SSR builds
-        //         format,
-        //         exports: 'auto',
-        //         sourcemap: options.sourcemap,
-        //         name: libOptions ? libOptions.name : undefined,
-        //         // es2015 enables `generatedCode.symbols`
-        //         // - #764 add `Symbol.toStringTag` when build es module into cjs chunk
-        //         // - #1048 add `Symbol.toStringTag` for module default export
-        //         generatedCode: 'es2015',
-        //         entryFileNames: ssr
-        //           ? `[name].${jsExt}`
-        //           : libOptions
-        //           ? ({ name }) =>
-        //               resolveLibFilename(
-        //                 libOptions,
-        //                 format,
-        //                 name,
-        //                 config.root,
-        //                 jsExt,
-        //                 config.packageCache,
-        //               )
-        //           : path.posix.join(options.assetsDir, `[name]-[hash].${jsExt}`),
-        //         chunkFileNames: libOptions
-        //           ? `[name]-[hash].${jsExt}`
-        //           : path.posix.join(options.assetsDir, `[name]-[hash].${jsExt}`),
-        //         assetFileNames: libOptions
-        //           ? `[name].[ext]`
-        //           : path.posix.join(options.assetsDir, `[name]-[hash].[ext]`),
-        //         inlineDynamicImports:
-        //           output.format === 'umd' ||
-        //           output.format === 'iife' ||
-        //           (ssrWorkerBuild &&
-        //             (typeof input === 'string' || Object.keys(input).length === 1)),
-        //         ...output,
+        dir: outDir,
+        // Default format is 'es' for regular and for SSR builds
+        format,
+        exports: 'auto',
+        sourcemap: options.sourcemap,
+        name: libOptions ? libOptions.name : undefined,
+        // es2015 enables `generatedCode.symbols`
+        // - #764 add `Symbol.toStringTag` when build es module into cjs chunk
+        // - #1048 add `Symbol.toStringTag` for module default export
+        generatedCode: 'es2015',
+        entryFileNames: ssr
+          ? `[name].${jsExt}`
+          : libOptions
+          ? ({ name }) =>
+              resolveLibFilename(
+                libOptions,
+                format,
+                name,
+                config.root,
+                jsExt,
+                config.packageCache,
+              )
+          : path.posix.join(options.assetsDir, `[name]-[hash].${jsExt}`),
+        chunkFileNames: libOptions
+          ? `[name]-[hash].${jsExt}`
+          : path.posix.join(options.assetsDir, `[name]-[hash].${jsExt}`),
+        assetFileNames: libOptions
+          ? `[name].[ext]`
+          : path.posix.join(options.assetsDir, `[name]-[hash].[ext]`),
+        inlineDynamicImports:
+          output.format === 'umd' ||
+          output.format === 'iife' ||
+          (ssrWorkerBuild &&
+            (typeof input === 'string' || Object.keys(input).length === 1)),
+        ...output,
       }
     }
     // resolve lib mode outputs
@@ -597,15 +598,15 @@ export async function build(
       libOptions,
       config.logger,
     )
-    //     const normalizedOutputs: OutputOptions[] = []
-    //     if (Array.isArray(outputs)) {
-    //       for (const resolvedOutput of outputs) {
-    //         normalizedOutputs.push(buildOutputOptions(resolvedOutput))
-    //       }
-    //     } else {
-    //       normalizedOutputs.push(buildOutputOptions(outputs))
-    //     }
-    //     const outDirs = normalizedOutputs.map(({ dir }) => resolve(dir!))
+    const normalizedOutputs: OutputOptions[] = []
+    if (Array.isArray(outputs)) {
+      for (const resolvedOutput of outputs) {
+        normalizedOutputs.push(buildOutputOptions(resolvedOutput))
+      }
+    } else {
+      normalizedOutputs.push(buildOutputOptions(outputs))
+    }
+    const outDirs = normalizedOutputs.map(({ dir }) => resolve(dir!))
     //     // watch file changes with rollup
     //     if (config.build.watch) {
     //       config.logger.info(colors.cyan(`\nwatching for file changes...`))
@@ -637,16 +638,17 @@ export async function build(
     //       })
     //       return watcher
     //     }
-    //     // write or generate files with rollup
-    //     const { rollup } = await import('rollup')
-    //     bundle = await rollup(rollupOptions)
-    //     if (options.write) {
-    //       prepareOutDir(outDirs, options.emptyOutDir, config)
-    //     }
+
+    // write or generate files with rollup
+    // const { rollup } = await import('rollup')
+    bundle = await rollup(rollupOptions)
+    if (options.write) {
+      prepareOutDir(outDirs, options.emptyOutDir, config)
+    }
     const res: RollupOutput[] = []
-    //     for (const output of normalizedOutputs) {
-    //       res.push(await bundle[options.write ? 'write' : 'generate'](output))
-    //     }
+    for (const output of normalizedOutputs) {
+      res.push(await bundle[options.write ? 'write' : 'generate'](output))
+    }
     return Array.isArray(outputs) ? res : res[0]
   } catch (e) {
     outputBuildError(e)
@@ -656,73 +658,73 @@ export async function build(
   }
 }
 
-// function prepareOutDir(
-//   outDirs: string[],
-//   emptyOutDir: boolean | null,
-//   config: ResolvedConfig,
-// ) {
-//   const nonDuplicateDirs = new Set(outDirs)
-//   let outside = false
-//   if (emptyOutDir == null) {
-//     for (const outDir of nonDuplicateDirs) {
-//       if (
-//         fs.existsSync(outDir) &&
-//         !normalizePath(outDir).startsWith(withTrailingSlash(config.root))
-//       ) {
-//         // warn if outDir is outside of root
-//         config.logger.warn(
-//           colors.yellow(
-//             `\n${colors.bold(`(!)`)} outDir ${colors.white(
-//               colors.dim(outDir),
-//             )} is not inside project root and will not be emptied.\n` +
-//               `Use --emptyOutDir to override.\n`,
-//           ),
-//         )
-//         outside = true
-//         break
-//       }
-//     }
-//   }
-//   for (const outDir of nonDuplicateDirs) {
-//     if (!outside && emptyOutDir !== false && fs.existsSync(outDir)) {
-//       // skip those other outDirs which are nested in current outDir
-//       const skipDirs = outDirs
-//         .map((dir) => {
-//           const relative = path.relative(outDir, dir)
-//           if (
-//             relative &&
-//             !relative.startsWith('..') &&
-//             !path.isAbsolute(relative)
-//           ) {
-//             return relative
-//           }
-//           return ''
-//         })
-//         .filter(Boolean)
-//       emptyDir(outDir, [...skipDirs, '.git'])
-//     }
-//     if (
-//       config.build.copyPublicDir &&
-//       config.publicDir &&
-//       fs.existsSync(config.publicDir)
-//     ) {
-//       if (!areSeparateFolders(outDir, config.publicDir)) {
-//         config.logger.warn(
-//           colors.yellow(
-//             `\n${colors.bold(
-//               `(!)`,
-//             )} The public directory feature may not work correctly. outDir ${colors.white(
-//               colors.dim(outDir),
-//             )} and publicDir ${colors.white(
-//               colors.dim(config.publicDir),
-//             )} are not separate folders.\n`,
-//           ),
-//         )
-//       }
-//       copyDir(config.publicDir, outDir)
-//     }
-//   }
-// }
+function prepareOutDir(
+  outDirs: string[],
+  emptyOutDir: boolean | null,
+  config: ResolvedConfig,
+) {
+  const nonDuplicateDirs = new Set(outDirs)
+  let outside = false
+  if (emptyOutDir == null) {
+    for (const outDir of nonDuplicateDirs) {
+      if (
+        fs.existsSync(outDir) &&
+        !normalizePath(outDir).startsWith(withTrailingSlash(config.root))
+      ) {
+        // warn if outDir is outside of root
+        config.logger.warn(
+          colors.yellow(
+            `\n${colors.bold(`(!)`)} outDir ${colors.white(
+              colors.dim(outDir),
+            )} is not inside project root and will not be emptied.\n` +
+              `Use --emptyOutDir to override.\n`,
+          ),
+        )
+        outside = true
+        break
+      }
+    }
+  }
+  for (const outDir of nonDuplicateDirs) {
+    if (!outside && emptyOutDir !== false && fs.existsSync(outDir)) {
+      // skip those other outDirs which are nested in current outDir
+      const skipDirs = outDirs
+        .map((dir) => {
+          const relative = path.relative(outDir, dir)
+          if (
+            relative &&
+            !relative.startsWith('..') &&
+            !path.isAbsolute(relative)
+          ) {
+            return relative
+          }
+          return ''
+        })
+        .filter(Boolean)
+      emptyDir(outDir, [...skipDirs, '.git'])
+    }
+    if (
+      config.build.copyPublicDir &&
+      config.publicDir &&
+      fs.existsSync(config.publicDir)
+    ) {
+      if (!areSeparateFolders(outDir, config.publicDir)) {
+        config.logger.warn(
+          colors.yellow(
+            `\n${colors.bold(
+              `(!)`,
+            )} The public directory feature may not work correctly. outDir ${colors.white(
+              colors.dim(outDir),
+            )} and publicDir ${colors.white(
+              colors.dim(config.publicDir),
+            )} are not separate folders.\n`,
+          ),
+        )
+      }
+      copyDir(config.publicDir, outDir)
+    }
+  }
+}
 
 // function getPkgName(name: string) {
 //   return name?.[0] === '@' ? name.split('/')[1] : name
@@ -730,16 +732,16 @@ export async function build(
 
 type JsExt = 'js' | 'cjs' | 'mjs'
 
-// function resolveOutputJsExtension(
-//   format: ModuleFormat,
-//   type: string = 'commonjs',
-// ): JsExt {
-//   if (type === 'module') {
-//     return format === 'cjs' || format === 'umd' ? 'cjs' : 'js'
-//   } else {
-//     return format === 'es' ? 'mjs' : 'js'
-//   }
-// }
+function resolveOutputJsExtension(
+  format: ModuleFormat,
+  type: string = 'commonjs',
+): JsExt {
+  if (type === 'module') {
+    return format === 'cjs' || format === 'umd' ? 'cjs' : 'js'
+  } else {
+    return format === 'es' ? 'mjs' : 'js'
+  }
+}
 
 export function resolveLibFilename(
   libOptions: LibraryOptions,
@@ -832,74 +834,67 @@ export function resolveBuildOutputs(
 //   `statically analyzed`,
 // ]
 
-// export function onRollupWarning(
-//   warning: RollupLog,
-//   warn: LoggingFunction,
-//   config: ResolvedConfig,
-// ): void {
-//   const viteWarn: LoggingFunction = (warnLog) => {
-//     let warning: string | RollupLog
-
-//     if (typeof warnLog === 'function') {
-//       warning = warnLog()
-//     } else {
-//       warning = warnLog
-//     }
-
-//     if (typeof warning === 'object') {
-//       if (warning.code === 'UNRESOLVED_IMPORT') {
-//         const id = warning.id
-//         const exporter = warning.exporter
-//         // throw unless it's commonjs external...
-//         if (!id || !/\?commonjs-external$/.test(id)) {
-//           throw new Error(
-//             `[dite]: Rollup failed to resolve import "${exporter}" from "${id}".\n` +
-//               `This is most likely unintended because it can break your application at runtime.\n` +
-//               `If you do want to externalize this module explicitly add it to\n` +
-//               `\`build.rollupOptions.external\``,
-//           )
-//         }
-//       }
-
-//       if (
-//         warning.plugin === 'rollup-plugin-dynamic-import-variables' &&
-//         dynamicImportWarningIgnoreList.some((msg) =>
-//           // @ts-expect-error warning is RollupLog
-//           warning.message.includes(msg),
-//         )
-//       ) {
-//         return
-//       }
-
-//       if (warningIgnoreList.includes(warning.code!)) {
-//         return
-//       }
-
-//       if (warning.code === 'PLUGIN_WARNING') {
-//         config.logger.warn(
-//           `${colors.bold(
-//             colors.yellow(`[plugin:${warning.plugin}]`),
-//           )} ${colors.yellow(warning.message)}`,
-//         )
-//         return
-//       }
-//     }
-
-//     warn(warnLog)
-//   }
-
-//   const tty = process.stdout.isTTY && !process.env.CI
-//   if (tty) {
-//     process.stdout.clearLine(0)
-//     process.stdout.cursorTo(0)
-//   }
-//   const userOnWarn = config.build.rollupOptions?.onwarn
-//   if (userOnWarn) {
-//     userOnWarn(warning, viteWarn)
-//   } else {
-//     viteWarn(warning)
-//   }
-// }
+export function onRollupWarning(
+  warning: RollupLog,
+  warn: LoggingFunction,
+  config: ResolvedConfig,
+): void {
+  //   const diteWarn: LoggingFunction = (warnLog) => {
+  //     let warning: string | RollupLog
+  //     if (typeof warnLog === 'function') {
+  //       warning = warnLog()
+  //     } else {
+  //       warning = warnLog
+  //     }
+  //     if (typeof warning === 'object') {
+  //       if (warning.code === 'UNRESOLVED_IMPORT') {
+  //         const id = warning.id
+  //         const exporter = warning.exporter
+  //         // throw unless it's commonjs external...
+  //         if (!id || !/\?commonjs-external$/.test(id)) {
+  //           throw new Error(
+  //             `[dite]: Rollup failed to resolve import "${exporter}" from "${id}".\n` +
+  //               `This is most likely unintended because it can break your application at runtime.\n` +
+  //               `If you do want to externalize this module explicitly add it to\n` +
+  //               `\`build.rollupOptions.external\``,
+  //           )
+  //         }
+  //       }
+  //       if (
+  //         warning.plugin === 'rollup-plugin-dynamic-import-variables' &&
+  //         dynamicImportWarningIgnoreList.some((msg) =>
+  //           // @ts-expect-error warning is RollupLog
+  //           warning.message.includes(msg),
+  //         )
+  //       ) {
+  //         return
+  //       }
+  //       if (warningIgnoreList.includes(warning.code!)) {
+  //         return
+  //       }
+  //       if (warning.code === 'PLUGIN_WARNING') {
+  //         config.logger.warn(
+  //           `${colors.bold(
+  //             colors.yellow(`[plugin:${warning.plugin}]`),
+  //           )} ${colors.yellow(warning.message)}`,
+  //         )
+  //         return
+  //       }
+  //     }
+  //     warn(warnLog)
+  //   }
+  //   const tty = process.stdout.isTTY && !process.env.CI
+  //   if (tty) {
+  //     process.stdout.clearLine(0)
+  //     process.stdout.cursorTo(0)
+  //   }
+  //   const userOnWarn = config.build.rollupOptions?.onwarn
+  //   if (userOnWarn) {
+  //     userOnWarn(warning, diteWarn)
+  //   } else {
+  //     diteWarn(warning)
+  //   }
+}
 
 // export function resolveUserExternal(
 //   user: ExternalOption,
@@ -924,77 +919,77 @@ export function resolveBuildOutputs(
 //   }
 // }
 
-// function injectSsrFlagToHooks(plugin: Plugin): Plugin {
-//   const { resolveId, load, transform } = plugin
-//   return {
-//     ...plugin,
-//     resolveId: wrapSsrResolveId(resolveId),
-//     load: wrapSsrLoad(load),
-//     transform: wrapSsrTransform(transform),
-//   }
-// }
+function injectSsrFlagToHooks(plugin: Plugin): Plugin {
+  const { resolveId, load, transform } = plugin
+  return {
+    ...plugin,
+    resolveId: wrapSsrResolveId(resolveId),
+    load: wrapSsrLoad(load),
+    transform: wrapSsrTransform(transform),
+  }
+}
 
-// function wrapSsrResolveId(hook?: Plugin['resolveId']): Plugin['resolveId'] {
-//   if (!hook) return
+function wrapSsrResolveId(hook?: Plugin['resolveId']): Plugin['resolveId'] {
+  if (!hook) return
 
-//   const fn = 'handler' in hook ? hook.handler : hook
-//   const handler: Plugin['resolveId'] = function (id, importer, options) {
-//     return fn.call(this, id, importer, injectSsrFlag(options))
-//   }
+  const fn = 'handler' in hook ? hook.handler : hook
+  const handler: Plugin['resolveId'] = function (id, importer, options) {
+    return fn.call(this, id, importer, injectSsrFlag(options))
+  }
 
-//   if ('handler' in hook) {
-//     return {
-//       ...hook,
-//       handler,
-//     } as Plugin['resolveId']
-//   } else {
-//     return handler
-//   }
-// }
+  if ('handler' in hook) {
+    return {
+      ...hook,
+      handler,
+    } as Plugin['resolveId']
+  } else {
+    return handler
+  }
+}
 
-// function wrapSsrLoad(hook?: Plugin['load']): Plugin['load'] {
-//   if (!hook) return
+function wrapSsrLoad(hook?: Plugin['load']): Plugin['load'] {
+  if (!hook) return
 
-//   const fn = 'handler' in hook ? hook.handler : hook
-//   const handler: Plugin['load'] = function (id, ...args) {
-//     // @ts-expect-error: Receiving options param to be future-proof if Rollup adds it
-//     return fn.call(this, id, injectSsrFlag(args[0]))
-//   }
+  const fn = 'handler' in hook ? hook.handler : hook
+  const handler: Plugin['load'] = function (id, ...args) {
+    // @ts-expect-error: Receiving options param to be future-proof if Rollup adds it
+    return fn.call(this, id, injectSsrFlag(args[0]))
+  }
 
-//   if ('handler' in hook) {
-//     return {
-//       ...hook,
-//       handler,
-//     } as Plugin['load']
-//   } else {
-//     return handler
-//   }
-// }
+  if ('handler' in hook) {
+    return {
+      ...hook,
+      handler,
+    } as Plugin['load']
+  } else {
+    return handler
+  }
+}
 
-// function wrapSsrTransform(hook?: Plugin['transform']): Plugin['transform'] {
-//   if (!hook) return
+function wrapSsrTransform(hook?: Plugin['transform']): Plugin['transform'] {
+  if (!hook) return
 
-//   const fn = 'handler' in hook ? hook.handler : hook
-//   const handler: Plugin['transform'] = function (code, importer, ...args) {
-//     // @ts-expect-error: Receiving options param to be future-proof if Rollup adds it
-//     return fn.call(this, code, importer, injectSsrFlag(args[0]))
-//   }
+  const fn = 'handler' in hook ? hook.handler : hook
+  const handler: Plugin['transform'] = function (code, importer, ...args) {
+    // @ts-expect-error: Receiving options param to be future-proof if Rollup adds it
+    return fn.call(this, code, importer, injectSsrFlag(args[0]))
+  }
 
-//   if ('handler' in hook) {
-//     return {
-//       ...hook,
-//       handler,
-//     } as Plugin['transform']
-//   } else {
-//     return handler
-//   }
-// }
+  if ('handler' in hook) {
+    return {
+      ...hook,
+      handler,
+    } as Plugin['transform']
+  } else {
+    return handler
+  }
+}
 
-// function injectSsrFlag<T extends Record<string, any>>(
-//   options?: T,
-// ): T & { ssr: boolean } {
-//   return { ...(options ?? {}), ssr: true } as T & { ssr: boolean }
-// }
+function injectSsrFlag<T extends Record<string, any>>(
+  options?: T,
+): T & { ssr: boolean } {
+  return { ...(options ?? {}), ssr: true } as T & { ssr: boolean }
+}
 
 // /*
 //   The following functions are copied from rollup
@@ -1120,52 +1115,52 @@ export type RenderBuiltAssetUrl = (
 //   })
 // }
 
-// export function toOutputFilePathWithoutRuntime(
-//   filename: string,
-//   type: 'asset' | 'public',
-//   hostId: string,
-//   hostType: 'js' | 'css' | 'html',
-//   config: ResolvedConfig,
-//   toRelative: (filename: string, hostId: string) => string,
-// ): string {
-//   const { renderBuiltUrl } = config.experimental
-//   let relative = config.base === '' || config.base === './'
-//   if (renderBuiltUrl) {
-//     const result = renderBuiltUrl(filename, {
-//       hostId,
-//       hostType,
-//       type,
-//       ssr: !!config.build.ssr,
-//     })
-//     if (typeof result === 'object') {
-//       if (result.runtime) {
-//         throw new Error(
-//           `{ runtime: "${result.runtime}" } is not supported for assets in ${hostType} files: ${filename}`,
-//         )
-//       }
-//       if (typeof result.relative === 'boolean') {
-//         relative = result.relative
-//       }
-//     } else if (result) {
-//       return result
-//     }
-//   }
-//   if (relative && !config.build.ssr) {
-//     return toRelative(filename, hostId)
-//   } else {
-//     return joinUrlSegments(config.base, filename)
-//   }
-// }
+export function toOutputFilePathWithoutRuntime(
+  filename: string,
+  type: 'asset' | 'public',
+  hostId: string,
+  hostType: 'js' | 'css' | 'html',
+  config: ResolvedConfig,
+  toRelative: (filename: string, hostId: string) => string,
+): string {
+  const { renderBuiltUrl } = config.experimental
+  let relative = config.base === '' || config.base === './'
+  if (renderBuiltUrl) {
+    const result = renderBuiltUrl(filename, {
+      hostId,
+      hostType,
+      type,
+      ssr: !!config.build.ssr,
+    })
+    if (typeof result === 'object') {
+      if (result.runtime) {
+        throw new Error(
+          `{ runtime: "${result.runtime}" } is not supported for assets in ${hostType} files: ${filename}`,
+        )
+      }
+      if (typeof result.relative === 'boolean') {
+        relative = result.relative
+      }
+    } else if (result) {
+      return result
+    }
+  }
+  if (relative && !config.build.ssr) {
+    return toRelative(filename, hostId)
+  } else {
+    return joinUrlSegments(config.base, filename)
+  }
+}
 
-// export const toOutputFilePathInCss = toOutputFilePathWithoutRuntime
-// export const toOutputFilePathInHtml = toOutputFilePathWithoutRuntime
+export const toOutputFilePathInCss = toOutputFilePathWithoutRuntime
+export const toOutputFilePathInHtml = toOutputFilePathWithoutRuntime
 
-// function areSeparateFolders(a: string, b: string) {
-//   const na = normalizePath(a)
-//   const nb = normalizePath(b)
-//   return (
-//     na !== nb &&
-//     !na.startsWith(withTrailingSlash(nb)) &&
-//     !nb.startsWith(withTrailingSlash(na))
-//   )
-// }
+function areSeparateFolders(a: string, b: string) {
+  const na = normalizePath(a)
+  const nb = normalizePath(b)
+  return (
+    na !== nb &&
+    !na.startsWith(withTrailingSlash(nb)) &&
+    !nb.startsWith(withTrailingSlash(na))
+  )
+}
